@@ -33,6 +33,10 @@ namespace jumoo.usync.content.helpers
 
         public static void LoadFromDisk()
         {
+            // blank it. 
+            pairs = new Dictionary<Guid, Guid>(); 
+
+
             if (File.Exists(pairFile))
             {
                 XElement source = XElement.Load(pairFile);
