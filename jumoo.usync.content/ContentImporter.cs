@@ -15,6 +15,10 @@ using System.Text.RegularExpressions;
 
 namespace jumoo.usync.content
 {
+    /// <summary>
+    ///  uSync Content importer - takes content from the disk and puts it into
+    ///  the umbraco installation.
+    /// </summary>
     public class ContentImporter
     {
         PackagingService _packager;
@@ -33,6 +37,11 @@ namespace jumoo.usync.content
             helpers.ImportPairs.LoadFromDisk(); 
         }
 
+        /// <summary>
+        ///  import the disk content
+        /// </summary>
+        /// <param name="mapIds">do we attempt to fix the internal id mappings in the content</param>
+        /// <returns></returns>
         public int ImportDiskContent(bool mapIds)
         {
             importCount = 0;
@@ -54,9 +63,9 @@ namespace jumoo.usync.content
         ///  walks the disk folder, imports any .content files it finds
         ///  in a folder, then recurses into sub folders to do the same
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="parentId"></param>
-        /// <param name="mapIds"></param>
+        /// <param name="path">path on disk to this folder</param>
+        /// <param name="parentId">ID of parent content</param>
+        /// <param name="mapIds">do we map internal ids inside the content nodes</param>
         public void ImportDiskContent(string path, int parentId, bool mapIds)
         {
             LogHelper.Info(typeof(ContentImporter), String.Format("Importing Disk Content {0}", path)); 
@@ -87,6 +96,13 @@ namespace jumoo.usync.content
             }
         }
 
+        /// <summary>
+        ///  imports a bit of content based on the xml it gets passed.
+        /// </summary>
+        /// <param name="element">xml of content node</param>
+        /// <param name="parentId">id of parent node</param>
+        /// <param name="mapIds">do we map internal content ids</param>
+        /// <returns>IContent node of newly updated / created content</returns>
         public IContent ImportContentItem(XElement element, int parentId, bool mapIds)
         {
             LogHelper.Info(typeof(ContentImporter), String.Format("Importing Content Item {0}", element.Name)); 
@@ -176,6 +192,16 @@ namespace jumoo.usync.content
                     }
                 }
 
+                if (content.Trashed)
+                {
+                    // TODO: something with trashed content ? 
+                    // if the content is in the bin - then we've still found it - we should undelete it ?
+                    //
+                    // other option is to check this earlier and just create new content
+                    // 
+                }
+                    
+
                 // do we publish?
                 if (published)
                 {
@@ -184,12 +210,15 @@ namespace jumoo.usync.content
                 else
                 {
                     _contentService.Save(content, 0, false);
+                    
                     // if it was already published we should unpublish here..
                     if (content.Published)
                     {
                         _contentService.UnPublish(content);
                     }
                 }
+
+
 
                 ++importCount; // for status updates...
 
@@ -228,8 +257,8 @@ namespace jumoo.usync.content
         ///  takes the content, uses the IdMap to search and replace
         ///  and id's it finds in the code.
         /// </summary>
-        /// <param name="content"></param>
-        /// <returns></returns>
+        /// <param name="content">piece of content to check</param>
+        /// <returns>updated content with new id values</returns>
         private string UpdateMatchingIds(string content)
         {
             LogHelper.Debug(typeof(ContentImporter), String.Format("Original [{0}]", content)); 
