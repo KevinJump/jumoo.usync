@@ -50,3 +50,21 @@
         </div>
     </div>
 </div>
+<!--
+<div class="propertypane">
+    <div class="propertyItem">
+        <div class="dashboardWrapper">
+            <h2>Packages</h2>
+            <img src="./dashboard/images/starterkit32x32.png" alt="uSync" class="dashboardIcon">
+            <p>
+                Experiments in packaging...
+            </p>
+            <asp:Button ID="listPackages" runat="server" Text="List Packages" OnClick="listPackages_Click" />
+
+            <div>
+                <asp:Label ID="Label1" runat="server"></asp:Label>
+            </div>
+        </div>
+    </div>
+</div>
+--> 

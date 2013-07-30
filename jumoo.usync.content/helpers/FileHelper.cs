@@ -4,6 +4,7 @@ using Umbraco.Core.IO ;
 
 using Umbraco.Core ;
 using Umbraco.Core.Models;
+using Umbraco.Core.Logging;
 
 using System.Xml.Linq; 
 
@@ -11,7 +12,7 @@ namespace jumoo.usync.content.helpers
 {
     public class FileHelper
     {
-        static string _contentRoot = "~/uSync.Content";
+        static string _contentRoot = uSyncContentSettings.Folder;
         static string _mappedRoot = "";
 
         static FileHelper()
@@ -32,6 +33,8 @@ namespace jumoo.usync.content.helpers
             string filename = string.Format("{0}.content", CleanFileName(node.Name));
 
             string fullpath = Path.Combine(string.Format("{0}{1}", _mappedRoot, path), filename);
+
+            LogHelper.Info(typeof(FileHelper), string.Format("Saving {0}", fullpath));
 
             if (!Directory.Exists(Path.GetDirectoryName(fullpath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fullpath));

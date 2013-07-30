@@ -8,7 +8,10 @@ using Umbraco.Core.Logging;
 
 using umbraco;
 
-using System.Xml.Linq; 
+using System.Xml.Linq;
+using System.IO;
+using Umbraco.Core.IO; 
+
 
 namespace jumoo.usync.content
 {
@@ -45,6 +48,7 @@ namespace jumoo.usync.content
 
             LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) ); 
 
+            /*
             XElement itemXml = ExportContent(item);
 
             if (itemXml != null)
@@ -56,6 +60,8 @@ namespace jumoo.usync.content
                 }
                 
             }
+            */
+            SaveContent(item, path); 
 
             // get the child path (helper for clean path)
             path = string.Format("{0}\\{1}", path, helpers.FileHelper.CleanFileName(item.Name));
@@ -63,6 +69,33 @@ namespace jumoo.usync.content
             foreach (var child in _contentService.GetChildren(item.Id))
             {
                 WalkSite(path, child, _contentService);
+            }
+
+        }
+
+        public void SaveContent(IContent content)
+        {
+            string path = GetContentPath(content);
+            SaveContent(content, path);
+        }
+        
+        public void SaveContent(IContent content, string path)
+        {
+            LogHelper.Info(typeof(ContentWalker), String.Format("SaveContent({0},{1})", content.Id, path));
+
+            // given a bit of content, save it in the right place...
+            XElement itemXml = ExportContent(content);
+
+            if (itemXml != null)
+            {
+                LogHelper.Info(typeof(ContentWalker), String.Format("Saving {0} content node", path));  
+                if (helpers.FileHelper.SaveContentFile(path, content, itemXml))
+                {
+                    helpers.SourcePairs.SavePair(content.Id, content.Key);
+                }
+            }
+            else {
+                LogHelper.Info(typeof(ContentWalker), "Content XML came back as null");
             }
 
         }
@@ -95,7 +128,21 @@ namespace jumoo.usync.content
 
             return xml; 
         }
+
+        private string GetContentPath(IContent content)
+        {
+            // works out the path for our content
+            string path = "";
+
+
+            if (content.ParentId != -1)
+            {
+                path = helpers.FileHelper.CleanFileName(content.Name);
+                path = String.Format("{0}\\{1}", GetContentPath(content.Parent()), path);
+            }
             
+            return path; 
+        }
 
     }
 

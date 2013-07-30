@@ -6,6 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 
 using jumoo.usync.content;
+// using jumoo.usync.packages; 
 
 namespace jumoo.usync.usyncui
 {
@@ -41,5 +42,14 @@ namespace jumoo.usync.usyncui
 
 
         }
+
+        /*
+        // package experiments - never worked 
+        protected void listPackages_Click(object sender, EventArgs e)
+        {
+            PackageSync p = new PackageSync();
+            p.ReadInstalledPackages(); 
+        }
+        */
     }
 }

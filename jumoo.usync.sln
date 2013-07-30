@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jumoo.usync.content", "jumo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jumoo.usync.usyncui", "jumoo.usync.usyncui\jumoo.usync.usyncui.csproj", "{8D3EFA9E-2FF4-4F8D-9AF0-518859B90538}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jumoo.usync.packages", "jumoo.usync.packages\jumoo.usync.packages.csproj", "{79AA64F3-B7F6-4376-A547-C0520275AED6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{8D3EFA9E-2FF4-4F8D-9AF0-518859B90538}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D3EFA9E-2FF4-4F8D-9AF0-518859B90538}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D3EFA9E-2FF4-4F8D-9AF0-518859B90538}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79AA64F3-B7F6-4376-A547-C0520275AED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79AA64F3-B7F6-4376-A547-C0520275AED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79AA64F3-B7F6-4376-A547-C0520275AED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79AA64F3-B7F6-4376-A547-C0520275AED6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

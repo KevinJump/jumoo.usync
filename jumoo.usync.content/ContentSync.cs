@@ -5,16 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Umbraco.Core;
-using Umbraco.Core.Logging; 
+using Umbraco.Core.Logging;
+
+using Umbraco.Core.IO;
+using System.IO; 
 
 namespace jumoo.usync.content
 {
-    public class ContentSync : IApplicationEventHandler
+    public class ContentSync : ApplicationEventHandler
     {
         private static bool _synced = false;
-        private static object _oSync = new object(); 
+        private static object _oSync = new object();
 
-        public void OnApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
             if (!_synced)
             {
@@ -23,19 +26,53 @@ namespace jumoo.usync.content
                     if (!_synced)
                     {
                         // do first time stuff...
-                        LogHelper.Info(typeof(ContentSync), "Initalized uSync Content Edition"); 
+                        LogHelper.Info(typeof(ContentSync), "Initalizing uSync Content Edition");
+
+                        if (!Directory.Exists(IOHelper.MapPath(uSyncContentSettings.Folder)) || uSyncContentSettings.Export)
+                        {
+                            ExportContent(); 
+                        }
+
+                        if (uSyncContentSettings.Import)
+                        {
+                            ImportContent(); 
+                        }
+
+                        if (uSyncContentSettings.Events != "Off")
+                        {
+                            AttachEvents(uSyncContentSettings.Events == "Publish");
+                        }
+
+                        LogHelper.Info(typeof(ContentSync), "uSync Content Edition Initilized"); 
                     }
                 }
             }
         }
 
-        public void OnApplicationInitialized(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        public int ImportContent()
         {
-            // not us
+            ContentImporter ci = new ContentImporter();
+
+            // 1. import the content 
+            int importCount = ci.ImportDiskContent(false);
+
+            // 2. import again but try to map id's
+            ci.ImportDiskContent(true);
+
+            return importCount; 
         }
-        public void OnApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+
+        public void ExportContent()
         {
-            // not us
+            // do the content exoort
+            ContentWalker cw = new ContentWalker();
+            cw.WalkSite();    
+        }
+
+        public void AttachEvents(bool onPublish)
+        {
+            ContentEvents events = new ContentEvents();
+            events.AttachEvents(onPublish); // on the save/delete.
         }
     }
 }
