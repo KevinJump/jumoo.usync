@@ -39,29 +39,47 @@ namespace jumoo.usync.content
                 // if we are doing on save sync 
                 LogHelper.Info(typeof(ContentEvents), "Attaching to Save/Delete events");
                 ContentService.Saved += ContentService_Saved;
-                ContentService.Deleted += ContentService_Deleted;
+                // ContentService.Deleted += ContentService_Deleted; (not deleted, we want it in the bin)
+                // ContentService.Trashed += ContentService_Trashed;
+                ContentService.Trashing += ContentService_Trashing;
             }
 
         }
 
+        void ContentService_Trashing(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
+        {
+            LogHelper.Info(typeof(ContentEvents), String.Format("Trashed {0}", e.Entity.Name));
+            ArchiveContentItem(e.Entity);
+        }
+
+        void ContentService_Trashed(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
+        {
+            LogHelper.Info(typeof(ContentEvents), String.Format("Trashed {0}", e.Entity.Name));
+            ArchiveContentItem(e.Entity);
+        }
+
         void ContentService_Deleted(IContentService sender, Umbraco.Core.Events.DeleteEventArgs<IContent> e)
         {
+            LogHelper.Info(typeof(ContentEvents), "Deleted");
             ArchiveContentItems(e.DeletedEntities); 
         }
 
         void ContentService_Saved(IContentService sender, Umbraco.Core.Events.SaveEventArgs<IContent> e)
         {
+            LogHelper.Info(typeof(ContentEvents), "Saved");
             SaveContentItemsToDisk(e.SavedEntities); 
         }
 
         void ContentService_UnPublished(Umbraco.Core.Publishing.IPublishingStrategy sender, Umbraco.Core.Events.PublishEventArgs<IContent> e)
         {
+            LogHelper.Info(typeof(ContentEvents), "UnPublished");
             ArchiveContentItems(e.PublishedEntities); 
         }
 
         void ContentService_Published(Umbraco.Core.Publishing.IPublishingStrategy sender, Umbraco.Core.Events.PublishEventArgs<IContent> e)
         {
             // when something is published, save it to the tree...
+            LogHelper.Info(typeof(ContentEvents), "Published");
             SaveContentItemsToDisk(e.PublishedEntities); 
         }
 
@@ -77,6 +95,17 @@ namespace jumoo.usync.content
         void ArchiveContentItems(IEnumerable<IContent> items)
         {
             // something soon
+            ContentWalker w = new ContentWalker();
+            foreach (var item in items)
+            {
+                w.ArchiveContent(item);
+            }
+        }
+
+        void ArchiveContentItem(IContent item)
+        {
+            ContentWalker w = new ContentWalker();
+            w.ArchiveContent(item);
         }
     }
 }

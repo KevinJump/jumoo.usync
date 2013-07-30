@@ -97,6 +97,17 @@ namespace jumoo.usync.content
 
         }
 
+        public void ArchiveContent(IContent content)
+        {
+            string path = Path.GetDirectoryName(GetContentPath(content));
+            ArchiveContent(content, path);
+        }
+
+        public void ArchiveContent(IContent content, string path)
+        {
+            helpers.FileHelper.ArchiveContentFile(path, content); 
+        }
+
         public XElement ExportContent(IContent content)
         {
             LogHelper.Info(typeof(ContentWalker), String.Format("Exporting content {0}", content.Name.ToSafeAliasWithForcingCheck()));

@@ -50,6 +50,18 @@ namespace jumoo.usync.content
         {
             get { return (String)this["folder"]; }
         }
+
+        [ConfigurationProperty("versions", DefaultValue = true, IsRequired = false)]
+        public Boolean Versions
+        {
+            get { return (Boolean)this["versions"]; }
+        }
+
+        [ConfigurationProperty("archive", DefaultValue = "~/uSync.Archive/Content/", IsRequired = false)]
+        public String Archive
+        {
+            get { return (String)this["archive"]; }
+        }
     }
 
     public class uSyncContentSettings
@@ -94,5 +106,17 @@ namespace jumoo.usync.content
         {
             get { return _settings.Folder; }
         }
+
+        public static string ArchiveFolder
+        {
+            get { return _settings.Archive; }
+        }
+
+        public static bool Versions
+        {
+            get { return _settings.Versions; }
+        }
+
+
     }   
 }
