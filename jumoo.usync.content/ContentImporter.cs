@@ -105,7 +105,7 @@ namespace jumoo.usync.content
         /// <returns>IContent node of newly updated / created content</returns>
         public IContent ImportContentItem(XElement element, int parentId, bool mapIds)
         {
-            LogHelper.Info(typeof(ContentImporter), String.Format("Importing Content Item {0}", element.Name)); 
+            LogHelper.Info(typeof(ContentImporter), String.Format("Importing Content Item {0}", element.Attribute("nodeName").Value)); 
 
             // 
             // get the guid we ar going to use for the content.
@@ -149,7 +149,17 @@ namespace jumoo.usync.content
             else
             {
                 // log..
-                LogHelper.Info(typeof(ContentImporter), "Found Existing Node");
+                if (content.Trashed == true)
+                {
+                    // it's in the bin, create a new version 
+                    content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
+                    LogHelper.Info(typeof(ContentImporter), "Node was in bin, creating new node");
+                    _new = true; 
+                }
+                else
+                {
+                    LogHelper.Info(typeof(ContentImporter), "Found Existing Node");
+                }
 
             }
 

@@ -81,14 +81,11 @@ namespace jumoo.usync.content
         
         public void SaveContent(IContent content, string path)
         {
-            LogHelper.Info(typeof(ContentWalker), String.Format("SaveContent({0},{1})", content.Id, path));
-
             // given a bit of content, save it in the right place...
             XElement itemXml = ExportContent(content);
 
             if (itemXml != null)
             {
-                LogHelper.Info(typeof(ContentWalker), String.Format("Saving {0} content node", path));  
                 if (helpers.FileHelper.SaveContentFile(path, content, itemXml))
                 {
                     helpers.SourcePairs.SavePair(content.Id, content.Key);
