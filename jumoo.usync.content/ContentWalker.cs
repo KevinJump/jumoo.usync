@@ -75,7 +75,7 @@ namespace jumoo.usync.content
 
         public void SaveContent(IContent content)
         {
-            string path = GetContentPath(content);
+            string path = Path.GetDirectoryName(GetContentPath(content));
             SaveContent(content, path);
         }
         
@@ -134,10 +134,10 @@ namespace jumoo.usync.content
             // works out the path for our content
             string path = "";
 
+            path = helpers.FileHelper.CleanFileName(content.Name);
 
             if (content.ParentId != -1)
             {
-                path = helpers.FileHelper.CleanFileName(content.Name);
                 path = String.Format("{0}\\{1}", GetContentPath(content.Parent()), path);
             }
             
