@@ -74,7 +74,7 @@ namespace jumoo.usync.content
             {
                 foreach (string file in Directory.GetFiles(path, "*.content"))
                 {
-                    LogHelper.Info(typeof(ContentImporter), String.Format("Found Content File {0}", file)); 
+                    // LogHelper.Info(typeof(ContentImporter), String.Format("Found Content File {0}", file)); 
 
                     XElement element = XElement.Load(file);
 
@@ -135,6 +135,14 @@ namespace jumoo.usync.content
             int sortOrder = int.Parse(element.Attribute("sortOrder").Value);
             bool published = bool.Parse(element.Attribute("published").Value);
 
+            DateTime updateDate = DateTime.Now; 
+
+            if (element.Attribute("updated") != null)
+            {
+                updateDate = DateTime.Parse(element.Attribute("updated").Value);
+            }
+
+
             // try to load the content. 
             // even if we haven't imported it before, we might be
             // reimporting to a source system so we should have a go
@@ -160,8 +168,21 @@ namespace jumoo.usync.content
                 {
                     LogHelper.Info(typeof(ContentImporter), "Found Existing Node");
                 }
-
             }
+
+            if (!_new)
+            {
+                //
+                // For existing content, we check the updatedate 
+                //
+                // if it's less or the same then we assume this content hasn't changed, and for speed
+                // we skip it's update here.
+                if ( DateTime.Compare(updateDate, content.UpdateDate) <= 0 ) {
+                    LogHelper.Info(typeof(ContentImporter), "Content has not changed since last read from disk") ; 
+                    return content ; 
+                }
+            }
+         
 
             if (content != null)
             {
@@ -180,7 +201,7 @@ namespace jumoo.usync.content
 
                 foreach (var property in properties)
                 {
-                    LogHelper.Info(typeof(ContentImporter), String.Format("Property: {0}", property.Name)); 
+                    // LogHelper.Info(typeof(ContentImporter), String.Format("Property: {0}", property.Name)); 
 
                     string propertyTypeAlias = property.Name.LocalName;
                     if (content.HasProperty(propertyTypeAlias))

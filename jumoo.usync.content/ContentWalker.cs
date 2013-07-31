@@ -88,7 +88,7 @@ namespace jumoo.usync.content
             {
                 if (helpers.FileHelper.SaveContentFile(path, content, itemXml))
                 {
-                    helpers.SourcePairs.SavePair(content.Id, content.Key);
+                    helpers.SourcePairs.SavePair(content.Key, content.Id);
                 }
             }
             else {
@@ -117,7 +117,18 @@ namespace jumoo.usync.content
             XElement xml = new XElement(nodeName);
             
             // core content item properties 
-            xml.Add(new XAttribute("guid", content.Key));
+
+            // if this content has come from somewhere else, i should respect that.
+            // and write the orginal contentGuid into my source document. 
+            Guid _guid = content.Key; 
+            if (helpers.ImportPairs.pairs.ContainsValue(content.Key))
+            {
+                _guid = helpers.ImportPairs.pairs.FirstOrDefault(x => x.Value == content.Key).Key;
+            }
+
+            xml.Add(new XAttribute("guid", _guid));
+
+
             xml.Add(new XAttribute("parentGUID", content.Level > 1 ? content.Parent().Key : new Guid("00000000-0000-0000-0000-000000000000")));
             xml.Add(new XAttribute("nodeTypeAlias", content.ContentType.Alias));
             xml.Add(new XAttribute("templateAlias", content.Template == null ? "" : content.Template.Alias));
@@ -126,6 +137,7 @@ namespace jumoo.usync.content
             xml.Add(new XAttribute("nodeName", content.Name));
             xml.Add(new XAttribute("isDoc", ""));
             xml.Add(new XAttribute("published", content.Published));
+            xml.Add(new XAttribute("updated", content.UpdateDate)); 
             // xml.Add(new XAttribute("releaseDate", content.ReleaseDate));
             
             // the properties of content

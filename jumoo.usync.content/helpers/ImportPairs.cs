@@ -18,7 +18,7 @@ namespace jumoo.usync.content.helpers
 
         static ImportPairs()
         {
-            pairFile = Path.Combine(FileHelper.uSyncRoot, "_import.xml");
+            pairFile = Path.Combine(FileHelper.uSyncTemp, "_uSyncImport.xml");
         }
 
 

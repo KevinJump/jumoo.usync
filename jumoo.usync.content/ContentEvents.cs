@@ -85,27 +85,33 @@ namespace jumoo.usync.content
 
         void SaveContentItemsToDisk(IEnumerable<IContent> items)
         {
+            helpers.SourcePairs.LoadFromDisk();
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
                 w.SaveContent(item); 
             }
+            helpers.SourcePairs.SaveToDisk();
         }
 
         void ArchiveContentItems(IEnumerable<IContent> items)
         {
             // something soon
+            helpers.SourcePairs.LoadFromDisk();
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
                 w.ArchiveContent(item);
             }
+            helpers.SourcePairs.SaveToDisk();
         }
 
         void ArchiveContentItem(IContent item)
         {
+            helpers.SourcePairs.LoadFromDisk();
             ContentWalker w = new ContentWalker();
             w.ArchiveContent(item);
+            helpers.SourcePairs.SaveToDisk();
         }
     }
 }

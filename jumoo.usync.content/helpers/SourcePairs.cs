@@ -9,24 +9,27 @@ namespace jumoo.usync.content.helpers
 {
     public class SourcePairs
     {
-        public static Dictionary<int, Guid> pairs = new Dictionary<int, Guid>();
+        public static Dictionary<Guid, int> pairs = new Dictionary<Guid, int>();
         public static string pairFile;
 
         static SourcePairs()
         {
             pairFile = Path.Combine(FileHelper.uSyncRoot, "_source.xml");
+            
         }
 
-        public static void SavePair(int id, Guid key)
+        public static void SavePair(Guid key, int id)
         {
-            if (!pairs.ContainsKey(id))
+            if (!pairs.ContainsKey(key) )
             {
-                pairs.Add(id, key);
+                pairs.Add(key, id);
             }
         }
 
         public static void LoadFromDisk()
         {
+            pairs = new Dictionary<Guid, int>(); 
+
             if (File.Exists(pairFile))
             {
                 XElement source = XElement.Load(pairFile);
@@ -35,8 +38,8 @@ namespace jumoo.usync.content.helpers
                 foreach (var pair in sourcePairs)
                 {
                     pairs.Add(
-                        int.Parse(pair.Attribute("id").Value),
-                        Guid.Parse(pair.Attribute("guid").Value));
+                        Guid.Parse(pair.Attribute("guid").Value),
+                        int.Parse(pair.Attribute("id").Value));
                 }
             }
         }
@@ -53,11 +56,11 @@ namespace jumoo.usync.content.helpers
             XmlElement data = doc.CreateElement("usync.data");
             XmlElement content = doc.CreateElement("content");
 
-            foreach (KeyValuePair<int, Guid> pair in pairs)
+            foreach (KeyValuePair<Guid, int> pair in pairs)
             {
                 XmlElement p = doc.CreateElement("pair");
-                p.SetAttribute("id", pair.Key.ToString());
-                p.SetAttribute("guid", pair.Value.ToString());
+                p.SetAttribute("guid", pair.Key.ToString());
+                p.SetAttribute("id", pair.Value.ToString());
 
                 content.AppendChild(p); 
             }

@@ -14,12 +14,14 @@ namespace jumoo.usync.content.helpers
     public class FileHelper
     {
         static string _mappedRoot = "";
-        static string _mappedArchive = ""; 
+        static string _mappedArchive = "";
+        static string _mappedTemp = ""; // this must be in umbraco somewhere...
 
         static FileHelper()
         {
             _mappedRoot = IOHelper.MapPath(uSyncContentSettings.Folder);
-            _mappedArchive = IOHelper.MapPath(uSyncContentSettings.ArchiveFolder); 
+            _mappedArchive = IOHelper.MapPath(uSyncContentSettings.ArchiveFolder);
+            _mappedTemp = IOHelper.MapPath("~/App_data/Temp/"); 
 
             if (!Directory.Exists(_mappedRoot))
                 Directory.CreateDirectory(_mappedRoot);
@@ -29,6 +31,12 @@ namespace jumoo.usync.content.helpers
         {
             get { return _mappedRoot; }
         }
+
+        public static string uSyncTemp
+        {
+            get { return _mappedTemp; }
+        }
+
 
         public static bool SaveContentFile(string path, IContent node, XElement element)
         {

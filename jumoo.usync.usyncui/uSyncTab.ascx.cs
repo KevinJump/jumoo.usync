@@ -39,17 +39,7 @@ namespace jumoo.usync.usyncui
             ci.ImportDiskContent(true); 
 
             importStatus.Text = String.Format("{0} Content nodes imported", importCount);
-
-
         }
 
-        /*
-        // package experiments - never worked 
-        protected void listPackages_Click(object sender, EventArgs e)
-        {
-            PackageSync p = new PackageSync();
-            p.ReadInstalledPackages(); 
-        }
-        */
     }
 }
