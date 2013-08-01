@@ -48,8 +48,6 @@ namespace jumoo.usync.content
 
             string root = helpers.FileHelper.uSyncRoot;
 
-            LogHelper.Info(typeof(ContentImporter), String.Format("Importing disk contents - IdMapping : {0}", mapIds));
-
             ImportDiskContent(root, -1, mapIds);
 
             // save the import pair table.
@@ -68,8 +66,6 @@ namespace jumoo.usync.content
         /// <param name="mapIds">do we map internal ids inside the content nodes</param>
         public void ImportDiskContent(string path, int parentId, bool mapIds)
         {
-            LogHelper.Info(typeof(ContentImporter), String.Format("Importing Disk Content {0}", path)); 
-
             if (Directory.Exists(path))
             {
                 foreach (string file in Directory.GetFiles(path, "*.content"))
@@ -105,29 +101,17 @@ namespace jumoo.usync.content
         /// <returns>IContent node of newly updated / created content</returns>
         public IContent ImportContentItem(XElement element, int parentId, bool mapIds)
         {
-            LogHelper.Info(typeof(ContentImporter), String.Format("Importing Content Item {0}", element.Attribute("nodeName").Value)); 
-
-            // 
-            // get the guid we ar going to use for the content.
-            //
-            Guid contentGuid = new Guid(element.Attribute("guid").Value);
-            Guid _guid = contentGuid ;
-
             bool _new = false; // flag to track if we created new content.
 
-            //
-            // we look in the import table, if we have already imported this
-            // guid then we should have a new guid from it. so we and use that
-            // to find our content and create that. 
-            // 
+            LogHelper.Info<ContentImporter>( "Importing Content Item {0} [Mapping={1}]", () => element.Attribute("nodeName").Value, () => mapIds ); 
 
+            // get the guid from the xml
+            Guid contentGuid = new Guid(element.Attribute("guid").Value);
 
-            if ( helpers.ImportPairs.pairs.ContainsKey(contentGuid))
-            {
-                _guid = helpers.ImportPairs.pairs[contentGuid];
-            }
+            // gets the guid we will use for import 
+            Guid _guid = helpers.ImportPairs.GetTargetGuid(contentGuid);
 
-            // load all the values from the xml 
+            // load all the additonal values from the xml 
             string name = element.Attribute("nodeName").Value;
             string nodeType = element.Attribute("nodeTypeAlias").Value;
             string templateAlias = element.Attribute("templateAlias").Value;
@@ -166,23 +150,18 @@ namespace jumoo.usync.content
                 }
                 else
                 {
-                    LogHelper.Info(typeof(ContentImporter), "Found Existing Node");
+                    if (!mapIds)
+                    {
+                        if (DateTime.Compare(updateDate, content.UpdateDate) <= 0)
+                        {
+                            LogHelper.Info(typeof(ContentImporter), "Content has not changed since last read from disk");
+                            return content;
+                        }
+                    }
+                    LogHelper.Info<ContentImporter>("Updating existing node");
                 }
             }
-
-            if (!_new)
-            {
-                //
-                // For existing content, we check the updatedate 
-                //
-                // if it's less or the same then we assume this content hasn't changed, and for speed
-                // we skip it's update here.
-                if ( DateTime.Compare(updateDate, content.UpdateDate) <= 0 ) {
-                    LogHelper.Info(typeof(ContentImporter), "Content has not changed since last read from disk") ; 
-                    return content ; 
-                }
-            }
-         
+        
 
             if (content != null)
             {
@@ -295,23 +274,17 @@ namespace jumoo.usync.content
             LogHelper.Debug(typeof(ContentImporter), String.Format("Original [{0}]", content)); 
 
             Dictionary<string, string> replacements = new Dictionary<string, string>();
-            
-            // look for things that might be Ids
-            foreach(Match m in Regex.Matches(content, @"\d{1,10}"))
+
+            string guidRegEx = @"\b[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\b";  
+
+            // look for things that might be Guids...
+            foreach(Match m in Regex.Matches(content, guidRegEx))
             {
-                if ( _idMap.ContainsKey(int.Parse(m.Value)))
+                int id = GetIdFromGuid(Guid.Parse(m.Value));
+
+                if ( !replacements.ContainsKey(m.Value))
                 {
-                    // we have an id that is in our mapper
-
-                    // it it's not already in our replacements for this 
-                    // bit of content ... add it
-
-                    int source = int.Parse(m.Value);
-
-                    if ( !replacements.ContainsKey(m.Value))
-                    {
-                        replacements.Add(m.Value, _idMap[source].ToString());
-                    }
+                    replacements.Add(m.Value, id.ToString() );
                 }
             }
 
@@ -319,7 +292,7 @@ namespace jumoo.usync.content
 
             foreach(KeyValuePair<string, string> pair in replacements)
             {
-                LogHelper.Info(typeof(ContentImporter), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value)); 
+                LogHelper.Debug<ContentImporter>( "Updating Id's {0} > {1}", () => pair.Key, () => pair.Value); 
                 content = content.Replace(pair.Key, pair.Value);
             }
 
@@ -343,6 +316,18 @@ namespace jumoo.usync.content
                 return parent.Value;
             }
             return xml; 
+        }
+
+        private int GetIdFromGuid(Guid guid)
+        {
+            Guid sourceGuid = helpers.ImportPairs.GetSourceGuid(guid);
+
+            ContentService cs = new ContentService();
+            IContent c = cs.GetById(sourceGuid);
+            if (c != null)
+                return c.Id;
+            else
+                return 1000;
         }
 
     }

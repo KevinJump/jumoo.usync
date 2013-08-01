@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 using Umbraco.Core ;
 using Umbraco.Core.Services;
 using Umbraco.Core.Models ;
@@ -8,7 +11,9 @@ using Umbraco.Core.Logging;
 
 using umbraco;
 
+using System.Xml;
 using System.Xml.Linq;
+
 using System.IO;
 using Umbraco.Core.IO; 
 
@@ -46,7 +51,7 @@ namespace jumoo.usync.content
         public void WalkSite(string path, IContent item, ContentService _contentService)
         {
 
-            LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) ); 
+            LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) );
 
             /*
             XElement itemXml = ExportContent(item);
@@ -120,14 +125,9 @@ namespace jumoo.usync.content
 
             // if this content has come from somewhere else, i should respect that.
             // and write the orginal contentGuid into my source document. 
-            Guid _guid = content.Key; 
-            if (helpers.ImportPairs.pairs.ContainsValue(content.Key))
-            {
-                _guid = helpers.ImportPairs.pairs.FirstOrDefault(x => x.Value == content.Key).Key;
-            }
+            Guid _guid = helpers.ImportPairs.GetSourceGuid(content.Key); 
 
             xml.Add(new XAttribute("guid", _guid));
-
 
             xml.Add(new XAttribute("parentGUID", content.Level > 1 ? content.Parent().Key : new Guid("00000000-0000-0000-0000-000000000000")));
             xml.Add(new XAttribute("nodeTypeAlias", content.ContentType.Alias));
@@ -140,10 +140,20 @@ namespace jumoo.usync.content
             xml.Add(new XAttribute("updated", content.UpdateDate)); 
             // xml.Add(new XAttribute("releaseDate", content.ReleaseDate));
             
+            
             // the properties of content
             foreach (var property in content.Properties.Where(p => p != null))
             {
-                xml.Add(property.ToXml()); 
+                // replace any IDs inteh property with the sourceGuid, on import we do this the otherway around...
+                XElement propXml = property.ToXml();
+
+                string xmlVal = ReplaceIdsWithGuid( GetInnerXML(propXml) );
+
+                XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), xmlVal));
+
+                LogHelper.Debug<ContentWalker>("parse {0}", () => p.ToString());
+
+                xml.Add(p); 
             }
 
             return xml; 
@@ -164,6 +174,52 @@ namespace jumoo.usync.content
             return path; 
         }
 
+        private string ReplaceIdsWithGuid(string propValue)
+        {
+            Dictionary<string, string> replacements = new Dictionary<string, string>();
+
+            // look for things that might be Ids
+            foreach (Match m in Regex.Matches(propValue, @"\d{1,10}"))
+            {
+                Guid? localGuid = GetGuidFromId(int.Parse(m.Value));
+                if ( localGuid != null ) 
+                {
+                    if (!replacements.ContainsKey(m.Value))
+                    {
+                        Guid sourceGuid = helpers.ImportPairs.GetSourceGuid(localGuid.Value); 
+                        replacements.Add(m.Value, sourceGuid.ToString().ToUpper());
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<string, string> pair in replacements)
+            {
+                LogHelper.Info(typeof(ContentWalker), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value));
+                propValue = propValue.Replace(pair.Key, pair.Value);
+            }
+
+            LogHelper.Debug(typeof(ContentWalker), String.Format("Updated [{0}]", propValue));
+            return propValue; 
+        }
+
+        private Guid? GetGuidFromId(int id)
+        {
+            ContentService cs = new ContentService();
+
+            IContent contentItem = cs.GetById(id);
+            if (contentItem != null)
+                return contentItem.Key;
+            else
+                return null;
+
+        }
+
+        private string GetInnerXML(XElement parent)
+        {
+            var reader = parent.CreateReader();
+            reader.MoveToContent();
+            return reader.ReadInnerXml();
+        }
     }
 
 

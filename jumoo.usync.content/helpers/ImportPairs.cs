@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq; 
 
 using System.IO; 
 using System.Xml;
@@ -75,6 +76,49 @@ namespace jumoo.usync.content.helpers
             data.AppendChild(content);
             doc.AppendChild(data);
             doc.Save(pairFile);
+        }
+
+
+        /// <summary>
+        ///  maps a guid to the orginal source (master) guid from the system
+        ///  that created this content
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public static Guid GetSourceGuid(Guid guid)
+        {
+            if ( pairs.ContainsValue(guid) )
+                return pairs.FirstOrDefault(x => x.Value == guid).Key;
+
+            return guid ; 
+        }
+
+        /// <summary>
+        ///  looks for a match in our import table for the guid
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public static Guid GetTargetGuid(Guid guid)
+        {
+            if ( pairs.ContainsKey(guid) )
+                return pairs[guid] ; 
+
+            return guid ; 
+        }
+
+        private static string GetInnerXML(XElement parent)
+        {
+            var reader = parent.CreateReader();
+            reader.MoveToContent();
+            string xml = reader.ReadInnerXml();
+
+            // except umbraco then doesn't like content
+            // starting cdata
+            if (xml.StartsWith("<![CDATA["))
+            {
+                return parent.Value;
+            }
+            return xml;
         }
     }
 }
