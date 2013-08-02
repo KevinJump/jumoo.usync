@@ -122,7 +122,7 @@ namespace jumoo.usync.content
             Guid contentGuid = new Guid(element.Attribute("guid").Value);
 
             // gets the guid we will use for import 
-            Guid _guid = helpers.ImportPairs.GetTargetGuid(contentGuid);
+            Guid _guid = ImportPairs.GetTargetGuid(contentGuid);
 
             // load all the additonal values from the xml 
             string name = element.Attribute("nodeName").Value;
@@ -146,7 +146,8 @@ namespace jumoo.usync.content
             if (content == null)
             {
                 // this is new..
-                content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
+                // content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
+                content = _contentService.CreateContent(name, parentId, nodeType);  // should be faster?
                 LogHelper.Debug<ContentImporter>("Created New Content Node");
                 _new = true; 
             }
@@ -156,7 +157,8 @@ namespace jumoo.usync.content
                 if (content.Trashed == true)
                 {
                     // it's in the bin, create a new version 
-                    content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
+                    // content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
+                    content = _contentService.CreateContent(name, parentId, nodeType);  // should be faster?
                     LogHelper.Debug<ContentImporter>("Node was in bin, creating new node");
                     _new = true;
                 }
