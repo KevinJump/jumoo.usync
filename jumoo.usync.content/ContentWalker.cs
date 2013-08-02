@@ -31,7 +31,7 @@ namespace jumoo.usync.content
         }
 
 
-        public void WalkSite()
+        public void WalkSite(bool pairs)
         {
             LogHelper.Info(typeof(ContentWalker), "Content Walk started"); 
 
@@ -39,41 +39,29 @@ namespace jumoo.usync.content
 
             foreach (var item in _contentService.GetRootContent())
             {
-                WalkSite("", item, _contentService);
+                WalkSite("", item, _contentService, pairs);
             }
 
-            // save the pair table we use it for mapping...
+            // save the pair table we use it for renames...
             helpers.SourcePairs.SaveToDisk();
 
             LogHelper.Info(typeof(ContentWalker), "Content Walk Completed"); 
         }
 
-        public void WalkSite(string path, IContent item, ContentService _contentService)
+        public void WalkSite(string path, IContent item, ContentService _contentService, bool pairs)
         {
-
-            LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) );
-
-            /*
-            XElement itemXml = ExportContent(item);
-
-            if (itemXml != null)
-            {
-                if (helpers.FileHelper.SaveContentFile(path, item, itemXml))
-                {
-                    // add to the source pair (need to write)
-                    helpers.SourcePairs.SavePair(item.Id, item.Key);
-                }
-                
+            if ( pairs ) {
+                helpers.SourcePairs.SavePair(item.Key, item.Name) ; 
             }
-            */
-            SaveContent(item, path); 
-
-            // get the child path (helper for clean path)
+            else {
+               LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) );
+               SaveContent(item, path); 
+            }
+            
             path = string.Format("{0}\\{1}", path, helpers.FileHelper.CleanFileName(item.Name));
-
             foreach (var child in _contentService.GetChildren(item.Id))
             {
-                WalkSite(path, child, _contentService);
+                WalkSite(path, child, _contentService, pairs);
             }
 
         }
@@ -93,7 +81,7 @@ namespace jumoo.usync.content
             {
                 if (helpers.FileHelper.SaveContentFile(path, content, itemXml))
                 {
-                    helpers.SourcePairs.SavePair(content.Key, content.Id);
+                    helpers.SourcePairs.SavePair(content.Key, content.Name);
                 }
             }
             else {
@@ -111,6 +99,12 @@ namespace jumoo.usync.content
         public void ArchiveContent(IContent content, string path)
         {
             helpers.FileHelper.ArchiveContentFile(path, content); 
+        }
+
+        public void RenameContent(IContent content, string oldName)
+        {
+            string path = Path.GetDirectoryName(GetContentPath(content));
+            helpers.FileHelper.RenameContentFile(path, content, oldName); 
         }
 
         public XElement ExportContent(IContent content)

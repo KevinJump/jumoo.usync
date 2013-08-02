@@ -21,7 +21,7 @@ namespace jumoo.usync.usyncui
         {
             // do the content exoort
             ContentWalker cw = new ContentWalker();
-            cw.WalkSite();
+            cw.WalkSite(false);
 
             exportStatus.Text = "Content Exported"; 
             

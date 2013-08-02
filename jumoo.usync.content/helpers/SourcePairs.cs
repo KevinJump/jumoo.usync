@@ -9,26 +9,26 @@ namespace jumoo.usync.content.helpers
 {
     public class SourcePairs
     {
-        public static Dictionary<Guid, int> pairs = new Dictionary<Guid, int>();
+        public static Dictionary<Guid, string> pairs = new Dictionary<Guid, string>();
         public static string pairFile;
 
         static SourcePairs()
         {
-            pairFile = Path.Combine(FileHelper.uSyncRoot, "_source.xml");
+            pairFile = Path.Combine(FileHelper.uSyncRoot, "_sourceNames.xml");
             
         }
 
-        public static void SavePair(Guid key, int id)
+        public static void SavePair(Guid key, string name)
         {
-            if (!pairs.ContainsKey(key) )
-            {
-                pairs.Add(key, id);
-            }
+            if (pairs.ContainsKey(key) )
+                pairs.Remove(key); 
+
+            pairs.Add(key, name);
         }
 
         public static void LoadFromDisk()
         {
-            pairs = new Dictionary<Guid, int>(); 
+            pairs = new Dictionary<Guid, string>(); 
 
             if (File.Exists(pairFile))
             {
@@ -39,7 +39,7 @@ namespace jumoo.usync.content.helpers
                 {
                     pairs.Add(
                         Guid.Parse(pair.Attribute("guid").Value),
-                        int.Parse(pair.Attribute("id").Value));
+                        pair.Attribute("name").Value);
                 }
             }
         }
@@ -56,11 +56,11 @@ namespace jumoo.usync.content.helpers
             XmlElement data = doc.CreateElement("usync.data");
             XmlElement content = doc.CreateElement("content");
 
-            foreach (KeyValuePair<Guid, int> pair in pairs)
+            foreach (KeyValuePair<Guid, string> pair in pairs)
             {
                 XmlElement p = doc.CreateElement("pair");
                 p.SetAttribute("guid", pair.Key.ToString());
-                p.SetAttribute("id", pair.Value.ToString());
+                p.SetAttribute("name", pair.Value);
 
                 content.AppendChild(p); 
             }
@@ -68,6 +68,14 @@ namespace jumoo.usync.content.helpers
             data.AppendChild(content);
             doc.AppendChild(data);
             doc.Save(pairFile); 
+        }
+
+        public static string GetName(Guid key)
+        {
+            if (pairs.ContainsKey(key))
+                return pairs[key];
+            else
+                return "";
         }
     }
 }

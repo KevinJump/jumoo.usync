@@ -10,6 +10,8 @@ using Umbraco.Core.Models;
 
 using Umbraco.Core.Logging;
 
+using jumoo.usync.content.helpers; 
+
 namespace jumoo.usync.content
 {
     public class ContentEvents
@@ -26,7 +28,7 @@ namespace jumoo.usync.content
             // 2. does everything you save.
             //
 
-            if (onPublish)
+  /*          if (onPublish)
             {
                 // if we are doing on publish sync...
                 LogHelper.Info(typeof(ContentEvents), "Attaching to publish/unpublish events");
@@ -34,7 +36,8 @@ namespace jumoo.usync.content
                 ContentService.Published += ContentService_Published;
                 ContentService.UnPublished += ContentService_UnPublished;
             }
-            else
+            else 
+   */
             {
                 // if we are doing on save sync 
                 LogHelper.Info(typeof(ContentEvents), "Attaching to Save/Delete events");
@@ -42,8 +45,20 @@ namespace jumoo.usync.content
                 // ContentService.Deleted += ContentService_Deleted; (not deleted, we want it in the bin)
                 // ContentService.Trashed += ContentService_Trashed;
                 ContentService.Trashing += ContentService_Trashing;
+                ContentService.Moved += ContentService_Moved;
             }
 
+        }
+
+        void ContentService_Moved(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
+        {
+            // thing has moved... we should tidy up... but we need to know what it was called
+            LogHelper.Info<ContentEvents>("Move Fired Name: {0} Parent: {1}", () => e.Entity.Name, () => e.Entity.ParentId);
+
+            foreach (var version in sender.GetVersions(e.Entity.Id))
+            {
+                LogHelper.Info<ContentEvents>("Old Version Name: {0} Parent: {1}", () => version.Name, () => version.ParentId);
+            }
         }
 
         void ContentService_Trashing(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
@@ -67,9 +82,10 @@ namespace jumoo.usync.content
         void ContentService_Saved(IContentService sender, Umbraco.Core.Events.SaveEventArgs<IContent> e)
         {
             LogHelper.Info(typeof(ContentEvents), "Saved");
-            SaveContentItemsToDisk(e.SavedEntities); 
-        }
 
+            SaveContentItemsToDisk(sender, e.SavedEntities); 
+        }
+/*
         void ContentService_UnPublished(Umbraco.Core.Publishing.IPublishingStrategy sender, Umbraco.Core.Events.PublishEventArgs<IContent> e)
         {
             LogHelper.Info(typeof(ContentEvents), "UnPublished");
@@ -80,18 +96,31 @@ namespace jumoo.usync.content
         {
             // when something is published, save it to the tree...
             LogHelper.Info(typeof(ContentEvents), "Published");
-            SaveContentItemsToDisk(e.PublishedEntities); 
+            SaveContentItemsToDisk(sender, e.PublishedEntities); 
         }
+*/
 
-        void SaveContentItemsToDisk(IEnumerable<IContent> items)
+        void SaveContentItemsToDisk(IContentService sender, IEnumerable<IContent> items)
         {
             helpers.SourcePairs.LoadFromDisk();
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
+                if (item.Name != SourcePairs.GetName(item.Key))
+                {
+                    // rename 
+                    w.RenameContent(item, SourcePairs.GetName(item.Key));
+                }
                 w.SaveContent(item); 
+
+
+                // rename (bascially delete the file (we've just saved a new one - rename the folder?)
+                // RenameContent(last, item.Name); 
+                
+                
+
             }
-            helpers.SourcePairs.SaveToDisk();
+            SourcePairs.SaveToDisk();
         }
 
         void ArchiveContentItems(IEnumerable<IContent> items)

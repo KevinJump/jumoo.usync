@@ -30,7 +30,10 @@ namespace jumoo.usync.content
 
                         if (!Directory.Exists(IOHelper.MapPath(uSyncContentSettings.Folder)) || uSyncContentSettings.Export)
                         {
-                            ExportContent(); 
+                            ExportContent(false); 
+                        }
+                        else {
+                            ExportContent(true) ; // just walk the tree and write the source pairs out...
                         }
 
                         if (uSyncContentSettings.Import)
@@ -62,11 +65,11 @@ namespace jumoo.usync.content
             return importCount; 
         }
 
-        public void ExportContent()
+        public void ExportContent(bool pairs)
         {
             // do the content exoort
             ContentWalker cw = new ContentWalker();
-            cw.WalkSite();    
+            cw.WalkSite(pairs);    
         }
 
         public void AttachEvents(bool onPublish)

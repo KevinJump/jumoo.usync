@@ -81,6 +81,32 @@ namespace jumoo.usync.content.helpers
             }
         }
 
+        /// <summary>
+        ///  renames a content node and any child folder it may have
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="node"></param>
+        /// <param name="oldName"></param>
+        public static void RenameContentFile(string path, IContent node, string oldName)
+        {
+            string folderRoot = String.Format("{0}{1}", _mappedRoot, path );
+ 
+            string oldFile = Path.Combine( folderRoot, 
+                string.Format("{0}.content", CleanFileName(oldName)));
+
+            LogHelper.Info<FileHelper>("Rename {0}", () => oldFile); 
+
+            // we just delete it, because save is fired to create the new one.
+            if (System.IO.File.Exists(oldFile))
+                System.IO.File.Delete(oldFile); 
+
+            string oldFolder = Path.Combine(folderRoot, CleanFileName(oldName));
+            string newFolder = Path.Combine(folderRoot, CleanFileName(node.Name));
+
+            if ( Directory.Exists(oldFolder) )
+                Directory.Move(oldFolder, newFolder) ; 
+        }
+
         public static string CleanFileName(string name)
         {
             return name.ToSafeAliasWithForcingCheck(); 
