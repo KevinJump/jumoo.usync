@@ -15,7 +15,9 @@ using System.Xml;
 using System.Xml.Linq;
 
 using System.IO;
-using Umbraco.Core.IO; 
+using Umbraco.Core.IO;
+
+using jumoo.usync.content.helpers; 
 
 
 namespace jumoo.usync.content
@@ -43,7 +45,7 @@ namespace jumoo.usync.content
             }
 
             // save the pair table we use it for renames...
-            helpers.SourcePairs.SaveToDisk();
+            SourceInfo.Save(); 
 
             LogHelper.Info(typeof(ContentWalker), "Content Walk Completed"); 
         }
@@ -51,7 +53,7 @@ namespace jumoo.usync.content
         public void WalkSite(string path, IContent item, ContentService _contentService, bool pairs)
         {
             if ( pairs ) {
-                helpers.SourcePairs.SavePair(item.Key, item.Name) ; 
+                SourceInfo.Add(item.Key, item.Name, item.ParentId); 
             }
             else {
                LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) );
@@ -81,7 +83,7 @@ namespace jumoo.usync.content
             {
                 if (helpers.FileHelper.SaveContentFile(path, content, itemXml))
                 {
-                    helpers.SourcePairs.SavePair(content.Key, content.Name);
+                    SourceInfo.Add(content.Key, content.Name, content.ParentId);                    
                 }
             }
             else {
@@ -106,6 +108,23 @@ namespace jumoo.usync.content
             string path = Path.GetDirectoryName(GetContentPath(content));
             helpers.FileHelper.RenameContentFile(path, content, oldName); 
         }
+
+        public void MoveContent(IContent content, int oldParentId)
+        {
+            ContentService contentService = new ContentService() ;
+
+            IContent oldParent = contentService.GetById(oldParentId);
+
+            if (oldParent != null)
+            {
+                string oldPath = GetContentPath(oldParent);
+                string newPath = GetContentPath(content);
+
+                FileHelper.MoveContentFile(oldPath, newPath, content.Name);
+                SaveContent(content); 
+            }
+        }
+
 
         public XElement ExportContent(IContent content)
         {

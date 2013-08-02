@@ -26,12 +26,14 @@ namespace jumoo.usync.content
             LogHelper.Info(typeof(ContentEvents), "Attaching to Save/Delete events");
             ContentService.Saved += ContentService_Saved;
             ContentService.Trashing += ContentService_Trashing;
-            ContentService.Moved += ContentService_Moved;        
+            // ContentService.Moved += ContentService_Moved;        
         }
 
         void ContentService_Moved(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
         {
-            // when something moves ...         
+            // when something moves ...       
+            LogHelper.Info<ContentWalker>("Move Event {0} {1} {2}", () => e.ParentId, ()=> e.Entity.ParentId, ()=> SourceInfo.GetParent(e.Entity.Key));
+           
         }
 
         void ContentService_Trashing(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
@@ -55,46 +57,51 @@ namespace jumoo.usync.content
         void ContentService_Saved(IContentService sender, Umbraco.Core.Events.SaveEventArgs<IContent> e)
         {
             LogHelper.Info(typeof(ContentEvents), "Saved");
-
             SaveContentItemsToDisk(sender, e.SavedEntities); 
         }
 
 
         void SaveContentItemsToDisk(IContentService sender, IEnumerable<IContent> items)
         {
-            helpers.SourcePairs.LoadFromDisk();
+            SourceInfo.Load(); 
+
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
-                if (item.Name != SourcePairs.GetName(item.Key))
+                if (item.Name != SourceInfo.GetName(item.Key))
                 {
-                    // rename 
-                    w.RenameContent(item, SourcePairs.GetName(item.Key));
+                    w.RenameContent(item, SourceInfo.GetName(item.Key));
                 }
+                
+                if (item.ParentId != SourceInfo.GetParent(item.Key))
+                {
+                    // it's moved...
+                    w.MoveContent(item, SourceInfo.GetParent(item.Key));
+                }
+
                 w.SaveContent(item); 
 
             }
-            SourcePairs.SaveToDisk();
+            SourceInfo.Save(); 
         }
 
         void ArchiveContentItems(IEnumerable<IContent> items)
         {
-            // something soon
-            helpers.SourcePairs.LoadFromDisk();
+            SourceInfo.Load();
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
                 w.ArchiveContent(item);
             }
-            helpers.SourcePairs.SaveToDisk();
+            SourceInfo.Save(); 
         }
 
         void ArchiveContentItem(IContent item)
         {
-            helpers.SourcePairs.LoadFromDisk();
+            SourceInfo.Load();
             ContentWalker w = new ContentWalker();
             w.ArchiveContent(item);
-            helpers.SourcePairs.SaveToDisk();
+            SourceInfo.Save();
         }
     }
 }

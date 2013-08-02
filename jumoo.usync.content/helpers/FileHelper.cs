@@ -107,6 +107,36 @@ namespace jumoo.usync.content.helpers
                 Directory.Move(oldFolder, newFolder) ; 
         }
 
+        public static void MoveContentFile(string oldPath, string newPath, string name)
+        {
+            LogHelper.Info<FileHelper>("Move\n Old: {0}\n New: {1}\n Name: {2}", () => oldPath, () => newPath, () => name);
+
+            string oldRoot = String.Format("{0}{1}", _mappedRoot, oldPath);
+            string newFolder = String.Format("{0}{1}", _mappedRoot, newPath);
+
+            string oldFile = Path.Combine(oldRoot, String.Format("{0}.content", CleanFileName(name)));
+
+            
+            if (System.IO.File.Exists(oldFile))
+                System.IO.File.Delete(oldFile);
+            
+
+            string oldFolder = Path.Combine(oldRoot, CleanFileName(name));
+
+            LogHelper.Info<FileHelper>("Move\n Old: {0}\n New: {1}\n", () => oldFolder, () => newFolder);
+
+            if (Directory.Exists(oldFolder))
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(newFolder)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(newFolder));
+
+                Directory.Move(oldFolder, newFolder);
+            }
+            
+
+
+        }
+
         public static string CleanFileName(string name)
         {
             return name.ToSafeAliasWithForcingCheck(); 
