@@ -41,9 +41,9 @@ namespace jumoo.usync.content
                             ImportContent(); 
                         }
 
-                        if (uSyncContentSettings.Events != "Off")
+                        if (uSyncContentSettings.Events)
                         {
-                            AttachEvents(uSyncContentSettings.Events == "Publish");
+                            AttachEvents();
                         }
 
                         LogHelper.Info(typeof(ContentSync), "uSync Content Edition Initilized"); 
@@ -72,10 +72,10 @@ namespace jumoo.usync.content
             cw.WalkSite(pairs);    
         }
 
-        public void AttachEvents(bool onPublish)
+        public void AttachEvents()
         {
             ContentEvents events = new ContentEvents();
-            events.AttachEvents(onPublish); // on the save/delete.
+            events.AttachEvents(); // on the save/delete.
         }
     }
 }

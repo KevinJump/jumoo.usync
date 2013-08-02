@@ -39,10 +39,10 @@ namespace jumoo.usync.content
         /// with save, files will be written everysave
         /// with publish they are written when something is published
         /// </summary>
-        [ConfigurationProperty("events", DefaultValue = "save", IsRequired = false)]
-        public String Events
+        [ConfigurationProperty("events", DefaultValue = true, IsRequired = false)]
+        public Boolean Events
         {
-            get { return (String)this["events"]; }
+            get { return (Boolean)this["events"]; }
         }
 
         [ConfigurationProperty("folder", DefaultValue = "~/uSync/Content/", IsRequired = false)]
@@ -97,7 +97,7 @@ namespace jumoo.usync.content
             get { return _settings.Import; }
         }
 
-        public static string Events
+        public static bool Events
         {
             get { return _settings.Events; }
         }
