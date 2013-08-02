@@ -283,6 +283,15 @@ namespace jumoo.usync.content
                             content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
                         }
                     }
+
+                    if (content.Published)
+                    {
+                        _contentService.SaveAndPublish(content, 0, false);
+                    }
+                    else
+                    {
+                        _contentService.Save(content,0, false);
+                    }
                 }
             }
 

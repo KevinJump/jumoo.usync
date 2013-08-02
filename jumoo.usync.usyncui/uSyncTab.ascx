@@ -9,6 +9,13 @@
                 move content from one umbraco install to another (mainly for developers to make a snapshot). 
             </p>
             <p>
+                depending on cofiguration (in config/usyncconfig.config) uSync will do it's import on application start
+                and save a file everytime to save a content item within umbraco.
+            </p>
+            <p>
+                <strong>you can use these buttons to test, but you shouldn't need to</strong>
+            </p>
+            <p>
                 uSync Content Edition only does the content, it assumes you've already synced things like doctypes,
                 macros and templates - (if you need help with that try 
                 <a href="http://our.umbraco.org/projects/developer-tools/usync" target="_new">uSync</a>)
