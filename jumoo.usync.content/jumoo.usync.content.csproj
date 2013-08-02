@@ -71,7 +71,7 @@
     <Compile Include="ContentWalker.cs" />
     <Compile Include="helpers\FileHelper.cs" />
     <Compile Include="helpers\ImportPairs.cs" />
-    <Compile Include="helpers\SourcePairs.cs" />
+    <Compile Include="helpers\SourceInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="uSyncSettings.cs" />
   </ItemGroup>

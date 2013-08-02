@@ -40,11 +40,11 @@ namespace jumoo.usync.content.helpers
 
         public static bool SaveContentFile(string path, IContent node, XElement element)
         {
+            LogHelper.Debug<FileHelper>("SaveContentFile {0} {1}", () => path, () => node.Name);
+
             string filename = string.Format("{0}.content", CleanFileName(node.Name));
 
             string fullpath = Path.Combine(string.Format("{0}{1}", _mappedRoot, path), filename);
-
-            LogHelper.Info(typeof(FileHelper), string.Format("Saving {0}", fullpath));
 
             if (!Directory.Exists(Path.GetDirectoryName(fullpath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fullpath));
@@ -59,7 +59,7 @@ namespace jumoo.usync.content.helpers
 
         public static void ArchiveContentFile(string path, IContent node)
         {
-            LogHelper.Info(typeof(FileHelper), string.Format("Archiving. {0} {1}", path, node.Name)); 
+            LogHelper.Debug<FileHelper>("Archiving. {0} {1}", ()=> path, ()=> node.Name); 
 
             string filename = string.Format("{0}.content", CleanFileName(node.Name));
             string fullpath = Path.Combine(string.Format("{0}{1}", _mappedRoot, path), filename);
@@ -84,17 +84,14 @@ namespace jumoo.usync.content.helpers
         /// <summary>
         ///  renames a content node and any child folder it may have
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="node"></param>
-        /// <param name="oldName"></param>
         public static void RenameContentFile(string path, IContent node, string oldName)
         {
+            LogHelper.Debug<FileHelper>("Rename {0} {1}", () => path, () => oldName);
+            
             string folderRoot = String.Format("{0}{1}", _mappedRoot, path );
  
             string oldFile = Path.Combine( folderRoot, 
                 string.Format("{0}.content", CleanFileName(oldName)));
-
-            LogHelper.Info<FileHelper>("Rename {0}", () => oldFile); 
 
             // we just delete it, because save is fired to create the new one.
             if (System.IO.File.Exists(oldFile))
@@ -109,7 +106,7 @@ namespace jumoo.usync.content.helpers
 
         public static void MoveContentFile(string oldPath, string newPath, string name)
         {
-            LogHelper.Info<FileHelper>("Move\n Old: {0}\n New: {1}\n Name: {2}", () => oldPath, () => newPath, () => name);
+            LogHelper.Debug<FileHelper>("Move\n Old: {0}\n New: {1}\n Name: {2}", () => oldPath, () => newPath, () => name);
 
             string oldRoot = String.Format("{0}{1}", _mappedRoot, oldPath);
             string newFolder = String.Format("{0}{1}", _mappedRoot, newPath);
@@ -120,11 +117,8 @@ namespace jumoo.usync.content.helpers
             if (System.IO.File.Exists(oldFile))
                 System.IO.File.Delete(oldFile);
             
-
             string oldFolder = Path.Combine(oldRoot, CleanFileName(name));
-
-            LogHelper.Info<FileHelper>("Move\n Old: {0}\n New: {1}\n", () => oldFolder, () => newFolder);
-
+            
             if (Directory.Exists(oldFolder))
             {
                 if (!Directory.Exists(Path.GetDirectoryName(newFolder)))
@@ -132,9 +126,6 @@ namespace jumoo.usync.content.helpers
 
                 Directory.Move(oldFolder, newFolder);
             }
-            
-
-
         }
 
         public static string CleanFileName(string name)

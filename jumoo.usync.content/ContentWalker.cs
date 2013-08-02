@@ -17,6 +17,8 @@ using System.Xml.Linq;
 using System.IO;
 using Umbraco.Core.IO;
 
+using System.Diagnostics;
+
 using jumoo.usync.content.helpers; 
 
 
@@ -35,7 +37,8 @@ namespace jumoo.usync.content
 
         public void WalkSite(bool pairs)
         {
-            LogHelper.Info(typeof(ContentWalker), "Content Walk started"); 
+            LogHelper.Info<ContentWalker>("Content Walk Started");
+            Stopwatch sw = Stopwatch.StartNew(); 
 
             ContentService _contentService = new ContentService();
 
@@ -45,9 +48,10 @@ namespace jumoo.usync.content
             }
 
             // save the pair table we use it for renames...
-            SourceInfo.Save(); 
+            SourceInfo.Save();
 
-            LogHelper.Info(typeof(ContentWalker), "Content Walk Completed"); 
+            sw.Stop(); 
+            LogHelper.Info<ContentWalker>("Content Walk Completed [{0} milliseconds]", ()=> sw.Elapsed.TotalMilliseconds ); 
         }
 
         public void WalkSite(string path, IContent item, ContentService _contentService, bool pairs)

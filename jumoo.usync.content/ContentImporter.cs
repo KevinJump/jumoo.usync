@@ -11,7 +11,10 @@ using Umbraco.Core.Logging;
 
 using System.IO;
 
-using System.Text.RegularExpressions; 
+using System.Text.RegularExpressions;
+using System.Diagnostics;
+
+using jumoo.usync.content.helpers;
 
 namespace jumoo.usync.content
 {
@@ -34,7 +37,7 @@ namespace jumoo.usync.content
             _contentService = ApplicationContext.Current.Services.ContentService;
 
             // load the import table (from disk)
-            helpers.ImportPairs.LoadFromDisk(); 
+            ImportPairs.LoadFromDisk(); 
         }
 
         /// <summary>
@@ -44,6 +47,9 @@ namespace jumoo.usync.content
         /// <returns></returns>
         public int ImportDiskContent(bool mapIds)
         {
+            LogHelper.Info<ContentImporter>("Import Starting MapId = {0}", () => mapIds);
+            Stopwatch sw = Stopwatch.StartNew(); 
+
             importCount = 0;
 
             string root = helpers.FileHelper.uSyncRoot;
@@ -52,7 +58,10 @@ namespace jumoo.usync.content
 
             // save the import pair table.
             // SaveImportPairTable();
-            helpers.ImportPairs.SaveToDisk(); 
+            ImportPairs.SaveToDisk();
+
+            sw.Stop();
+            LogHelper.Info<ContentImporter>("Import Complete [{0} milliseconds]", () => sw.Elapsed.TotalMilliseconds); 
 
             return importCount; 
         }
@@ -135,7 +144,7 @@ namespace jumoo.usync.content
             {
                 // this is new..
                 content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
-                LogHelper.Info(typeof(ContentImporter), "Created New Content Node");
+                LogHelper.Debug<ContentImporter>("Created New Content Node");
                 _new = true; 
             }
             else
@@ -145,20 +154,22 @@ namespace jumoo.usync.content
                 {
                     // it's in the bin, create a new version 
                     content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
-                    LogHelper.Info(typeof(ContentImporter), "Node was in bin, creating new node");
-                    _new = true; 
+                    LogHelper.Debug<ContentImporter>("Node was in bin, creating new node");
+                    _new = true;
                 }
                 else
                 {
-                    if (!mapIds)
+                    //
+                    // logic is if the file update is newer than what we have on disk, then we should
+                    // run through the update. not convinced by this. but it does speed up the appstart
+                    // significantly for large sites.
+                    //
+                    if (DateTime.Compare(updateDate, content.UpdateDate) <= 0)
                     {
-                        if (DateTime.Compare(updateDate, content.UpdateDate) <= 0)
-                        {
-                            LogHelper.Info(typeof(ContentImporter), "Content has not changed since last read from disk");
-                            return content;
-                        }
+                        LogHelper.Info<ContentImporter>("Content has not changed since last read from disk");
+                        return content;
                     }
-                    LogHelper.Info<ContentImporter>("Updating existing node");
+                    LogHelper.Debug<ContentImporter>("Updating existing node");
                 }
             }
         
@@ -271,8 +282,8 @@ namespace jumoo.usync.content
         /// <returns>updated content with new id values</returns>
         private string UpdateMatchingIds(string content)
         {
-            LogHelper.Debug(typeof(ContentImporter), String.Format("Original [{0}]", content)); 
-
+            LogHelper.Debug<ContentImporter>("Original [{0}]", () => content);
+            
             Dictionary<string, string> replacements = new Dictionary<string, string>();
 
             string guidRegEx = @"\b[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\b";  

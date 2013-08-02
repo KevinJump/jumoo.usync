@@ -8,7 +8,9 @@ using Umbraco.Core;
 using Umbraco.Core.Logging;
 
 using Umbraco.Core.IO;
-using System.IO; 
+using System.IO;
+
+using System.Diagnostics;
 
 namespace jumoo.usync.content
 {
@@ -27,6 +29,7 @@ namespace jumoo.usync.content
                     {
                         // do first time stuff...
                         LogHelper.Info(typeof(ContentSync), "Initalizing uSync Content Edition");
+                        Stopwatch sw = Stopwatch.StartNew(); 
 
                         if (!Directory.Exists(IOHelper.MapPath(uSyncContentSettings.Folder)) || uSyncContentSettings.Export)
                         {
@@ -46,7 +49,8 @@ namespace jumoo.usync.content
                             AttachEvents();
                         }
 
-                        LogHelper.Info(typeof(ContentSync), "uSync Content Edition Initilized"); 
+                        sw.Stop(); 
+                        LogHelper.Info<ContentSync>("uSync Content Edition Initilized [{0} seconds]", () => sw.Elapsed.TotalSeconds); 
                     }
                 }
             }

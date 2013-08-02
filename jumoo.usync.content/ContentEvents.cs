@@ -26,41 +26,29 @@ namespace jumoo.usync.content
             LogHelper.Info(typeof(ContentEvents), "Attaching to Save/Delete events");
             ContentService.Saved += ContentService_Saved;
             ContentService.Trashing += ContentService_Trashing;
-            // ContentService.Moved += ContentService_Moved;        
         }
 
-        void ContentService_Moved(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
-        {
-            // when something moves ...       
-            LogHelper.Info<ContentWalker>("Move Event {0} {1} {2}", () => e.ParentId, ()=> e.Entity.ParentId, ()=> SourceInfo.GetParent(e.Entity.Key));
-           
-        }
-
+        /// <summary>
+        ///  when something is deleted it's plopped in the recycle bin
+        /// </summary>
         void ContentService_Trashing(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
         {
-            LogHelper.Info(typeof(ContentEvents), String.Format("Trashed {0}", e.Entity.Name));
+            LogHelper.Info<ContentEvents>("Trashing {0}", () => e.Entity.Name);
             ArchiveContentItem(e.Entity);
         }
 
-        void ContentService_Trashed(IContentService sender, Umbraco.Core.Events.MoveEventArgs<IContent> e)
-        {
-            LogHelper.Info(typeof(ContentEvents), String.Format("Trashed {0}", e.Entity.Name));
-            ArchiveContentItem(e.Entity);
-        }
-
-        void ContentService_Deleted(IContentService sender, Umbraco.Core.Events.DeleteEventArgs<IContent> e)
-        {
-            LogHelper.Info(typeof(ContentEvents), "Deleted");
-            ArchiveContentItems(e.DeletedEntities); 
-        }
-
+        /// <summary>
+        ///  saved is fired on save and when something is moved (save fires before the move event)
+        /// </summary>
         void ContentService_Saved(IContentService sender, Umbraco.Core.Events.SaveEventArgs<IContent> e)
         {
-            LogHelper.Info(typeof(ContentEvents), "Saved");
             SaveContentItemsToDisk(sender, e.SavedEntities); 
         }
 
-
+        /// <summary>
+        ///  our save routine, checks to see if the item has been renamed, or if it's been moved
+        ///  then saves. 
+        /// </summary>
         void SaveContentItemsToDisk(IContentService sender, IEnumerable<IContent> items)
         {
             SourceInfo.Load(); 
@@ -68,14 +56,16 @@ namespace jumoo.usync.content
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
+                LogHelper.Info<ContentWalker>("Saving {0}", () => item.Name);
                 if (item.Name != SourceInfo.GetName(item.Key))
                 {
+                    LogHelper.Info<ContentWalker>("Rename {0}", () => item.Name);
                     w.RenameContent(item, SourceInfo.GetName(item.Key));
                 }
                 
                 if (item.ParentId != SourceInfo.GetParent(item.Key))
                 {
-                    // it's moved...
+                    LogHelper.Info<ContentWalker>("Move {0}", () => item.Name);
                     w.MoveContent(item, SourceInfo.GetParent(item.Key));
                 }
 
