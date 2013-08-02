@@ -62,6 +62,7 @@ namespace jumoo.usync.content
             // save the import pair table.
             // SaveImportPairTable();
             ImportPairs.SaveToDisk();
+            SourceInfo.Save(); 
 
             sw.Stop();
             LogHelper.Info<ContentImporter>("Import Complete [{0} milliseconds]", () => sw.Elapsed.TotalMilliseconds); 
@@ -229,7 +230,7 @@ namespace jumoo.usync.content
                 {
                     // it's new add it to the import table
                     ImportPairs.SavePair(contentGuid, content.Key);
-                    
+                    SourceInfo.Add(content.Key, content.Name, content.ParentId); 
                 }
 
                 if (!changes.ContainsKey(content.Key))

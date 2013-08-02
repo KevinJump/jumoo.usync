@@ -106,12 +106,12 @@ namespace jumoo.usync.content.helpers
             return null;
         }
 
-        public static int GetParent(Guid guid)
+        public static int? GetParent(Guid guid)
         {
             if (source.ContainsKey(guid))
                 return source[guid].Item2;
 
-            return -1;
+            return null;
         }
 
     }

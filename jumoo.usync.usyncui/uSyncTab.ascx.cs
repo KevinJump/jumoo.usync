@@ -30,15 +30,19 @@ namespace jumoo.usync.usyncui
 
         protected void importContent_Click(object sender, EventArgs e)
         {
+            System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+
             ContentImporter ci = new ContentImporter();
 
             // 1. import the content 
             int importCount = ci.ImportDiskContent(); 
 
             // 2. import again but try to map id's
-            ci.MapContentIds(); 
+            ci.MapContentIds();
 
-            importStatus.Text = String.Format("{0} Content nodes imported", importCount);
+            sw.Stop(); 
+
+            importStatus.Text = String.Format("{0} Content nodes imported in {1} seconds", importCount, sw.Elapsed.TotalSeconds);
         }
 
     }

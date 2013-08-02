@@ -26,6 +26,12 @@ namespace jumoo.usync.content
             LogHelper.Info(typeof(ContentEvents), "Attaching to Save/Delete events");
             ContentService.Saved += ContentService_Saved;
             ContentService.Trashing += ContentService_Trashing;
+            ContentService.Copied += ContentService_Copied;
+        }
+
+        void ContentService_Copied(IContentService sender, Umbraco.Core.Events.CopyEventArgs<IContent> e)
+        {
+            SaveContentItemsToDisk(sender, new List<IContent>(new IContent[] { e.Copy }));
         }
 
         /// <summary>
@@ -57,16 +63,18 @@ namespace jumoo.usync.content
             foreach (var item in items)
             {
                 LogHelper.Info<ContentWalker>("Saving {0}", () => item.Name);
-                if (item.Name != SourceInfo.GetName(item.Key))
+                string sourceName = SourceInfo.GetName(item.Key);
+                if ( (sourceName!= null) && (item.Name != sourceName ) )
                 {
                     LogHelper.Info<ContentWalker>("Rename {0}", () => item.Name);
                     w.RenameContent(item, SourceInfo.GetName(item.Key));
                 }
                 
-                if (item.ParentId != SourceInfo.GetParent(item.Key))
+                int? parent = SourceInfo.GetParent(item.Key) ; 
+                if ( (parent != null) && (item.ParentId != parent.Value))
                 {
                     LogHelper.Info<ContentWalker>("Move {0}", () => item.Name);
-                    w.MoveContent(item, SourceInfo.GetParent(item.Key));
+                    w.MoveContent(item, parent.Value);
                 }
 
                 w.SaveContent(item); 
