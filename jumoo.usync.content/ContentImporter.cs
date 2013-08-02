@@ -27,8 +27,8 @@ namespace jumoo.usync.content
         PackagingService _packager;
         IContentService _contentService;
 
-        Dictionary<int, int> _idMap = new Dictionary<int, int>();
-
+        static Dictionary<Guid, XElement> changes; 
+        
         int importCount = 0; // used just to say how many things we imported
 
         public ContentImporter()
@@ -45,16 +45,19 @@ namespace jumoo.usync.content
         /// </summary>
         /// <param name="mapIds">do we attempt to fix the internal id mappings in the content</param>
         /// <returns></returns>
-        public int ImportDiskContent(bool mapIds)
+        public int ImportDiskContent()
         {
-            LogHelper.Info<ContentImporter>("Import Starting MapId = {0}", () => mapIds);
+            // if not mapping ids (i.e second pass) we blank the change list
+            changes = new Dictionary<Guid, XElement>(); 
+
+            LogHelper.Info<ContentImporter>("Import Starting");
             Stopwatch sw = Stopwatch.StartNew(); 
 
             importCount = 0;
 
             string root = helpers.FileHelper.uSyncRoot;
 
-            ImportDiskContent(root, -1, mapIds);
+            ImportDiskContent(root, -1);
 
             // save the import pair table.
             // SaveImportPairTable();
@@ -73,7 +76,7 @@ namespace jumoo.usync.content
         /// <param name="path">path on disk to this folder</param>
         /// <param name="parentId">ID of parent content</param>
         /// <param name="mapIds">do we map internal ids inside the content nodes</param>
-        public void ImportDiskContent(string path, int parentId, bool mapIds)
+        public void ImportDiskContent(string path, int parentId)
         {
             if (Directory.Exists(path))
             {
@@ -85,7 +88,7 @@ namespace jumoo.usync.content
 
                     if (element != null)
                     {
-                        IContent item = ImportContentItem(element, parentId, mapIds);
+                        IContent item = ImportContentItem(element, parentId);
 
                         if (item != null)
                         {
@@ -93,7 +96,7 @@ namespace jumoo.usync.content
 
                             if (Directory.Exists(folderPath))
                             {
-                                ImportDiskContent(folderPath, item.Id, mapIds);
+                                ImportDiskContent(folderPath, item.Id);
                             }
                         }
                     }
@@ -108,11 +111,11 @@ namespace jumoo.usync.content
         /// <param name="parentId">id of parent node</param>
         /// <param name="mapIds">do we map internal content ids</param>
         /// <returns>IContent node of newly updated / created content</returns>
-        public IContent ImportContentItem(XElement element, int parentId, bool mapIds)
+        public IContent ImportContentItem(XElement element, int parentId)
         {
             bool _new = false; // flag to track if we created new content.
 
-            LogHelper.Info<ContentImporter>( "Importing Content Item {0} [Mapping={1}]", () => element.Attribute("nodeName").Value, () => mapIds ); 
+            LogHelper.Info<ContentImporter>( "Importing Content Item {0}", () => element.Attribute("nodeName").Value); 
 
             // get the guid from the xml
             Guid contentGuid = new Guid(element.Attribute("guid").Value);
@@ -134,7 +137,6 @@ namespace jumoo.usync.content
             {
                 updateDate = DateTime.Parse(element.Attribute("updated").Value);
             }
-
 
             // try to load the content. 
             // even if we haven't imported it before, we might be
@@ -164,7 +166,7 @@ namespace jumoo.usync.content
                     // run through the update. not convinced by this. but it does speed up the appstart
                     // significantly for large sites.
                     //
-                    if (DateTime.Compare(updateDate, content.UpdateDate) <= 0)
+                    if ( DateTime.Compare(updateDate, content.UpdateDate) <= 0 )
                     {
                         LogHelper.Info<ContentImporter>("Content has not changed since last read from disk");
                         return content;
@@ -198,30 +200,10 @@ namespace jumoo.usync.content
                     {
                         // right if we are trying to be clever and map ids 
                         // then mapIds will be set
-                        if (mapIds)
-                        {
-                            // we can only really do this once all the content is imported.
-                            // so it's a bit of a two pass thing.
-                            content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
-
-                        }
-                        else
-                        {
-                            // just map the values
-                            content.SetValue(propertyTypeAlias, GetInnerXML(property));
-                        }
+                        content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
                     }
                 }
-
-                if (content.Trashed)
-                {
-                    // TODO: something with trashed content ? 
-                    // if the content is in the bin - then we've still found it - we should undelete it ?
-                    //
-                    // other option is to check this earlier and just create new content
-                    // 
-                }
-                    
+                   
 
                 // do we publish?
                 if (published)
@@ -246,16 +228,13 @@ namespace jumoo.usync.content
                 if (_new)
                 {
                     // it's new add it to the import table
-                    helpers.ImportPairs.SavePair(contentGuid, content.Key);
+                    ImportPairs.SavePair(contentGuid, content.Key);
                     
                 }
 
-                // add the content to the id map (for second pass mapping)
-                int _sourceId = int.Parse(element.Attribute("id").Value);
-                if (!_idMap.ContainsKey(_sourceId))
-                {
-                    _idMap.Add(_sourceId, content.Id);
-                }
+                if (!changes.ContainsKey(content.Key))
+                    changes.Add(content.Key, element); 
+                   
 
                 //
                 // the reality is the GUID is no special thing here. 
@@ -271,6 +250,38 @@ namespace jumoo.usync.content
             }
 
             return null; 
+
+        }
+
+        /// <summary>
+        ///  optimizing mapping of ids - we only map ids of content in the changes list
+        /// </summary>
+        public void MapContentIds()
+        {
+            LogHelper.Info<ContentImporter>("Mapping Ids on {0} changed nodes", ()=> changes.Count() ); 
+            foreach( KeyValuePair<Guid, XElement> change in changes) 
+            {
+                IContent content = _contentService.GetById(change.Key);
+
+                if (content != null)
+                {
+                    // load all the properties 
+                    var properties = from property in change.Value.Elements()
+                                     where property.Attribute("isDoc") == null
+                                     select property;
+
+                    foreach (var property in properties)
+                    {
+                        // LogHelper.Info(typeof(ContentImporter), String.Format("Property: {0}", property.Name)); 
+
+                        string propertyTypeAlias = property.Name.LocalName;
+                        if (content.HasProperty(propertyTypeAlias))
+                        {
+                            content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                        }
+                    }
+                }
+            }
 
         }
 

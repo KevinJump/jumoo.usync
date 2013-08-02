@@ -33,10 +33,10 @@ namespace jumoo.usync.usyncui
             ContentImporter ci = new ContentImporter();
 
             // 1. import the content 
-            int importCount = ci.ImportDiskContent(false); 
+            int importCount = ci.ImportDiskContent(); 
 
             // 2. import again but try to map id's
-            ci.ImportDiskContent(true); 
+            ci.MapContentIds(); 
 
             importStatus.Text = String.Format("{0} Content nodes imported", importCount);
         }

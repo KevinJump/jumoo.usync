@@ -26,6 +26,17 @@ namespace jumoo.usync.content.helpers
             Load(); 
         }
 
+        public static bool IsNew()
+        {
+            //
+            // esier to read than return !File.Exisits(sourceFile) 
+            //
+            if (File.Exists(sourceFile))
+                return false;
+
+            return true;
+        }
+
         public static void Add(Guid guid, string name, int parent)
         {
             if ( source.ContainsKey(guid) )

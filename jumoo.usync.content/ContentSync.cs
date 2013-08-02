@@ -36,7 +36,9 @@ namespace jumoo.usync.content
                             ExportContent(false); 
                         }
                         else {
-                            ExportContent(true) ; // just walk the tree and write the source pairs out...
+                            // if the source info file is missing 
+                            if ( helpers.SourceInfo.IsNew() )
+                                ExportContent(true) ; 
                         }
 
                         if (uSyncContentSettings.Import)
@@ -61,10 +63,10 @@ namespace jumoo.usync.content
             ContentImporter ci = new ContentImporter();
 
             // 1. import the content 
-            int importCount = ci.ImportDiskContent(false);
+            int importCount = ci.ImportDiskContent();
 
-            // 2. import again but try to map id's
-            ci.ImportDiskContent(true);
+            // 2. to map id's in the things that we just updated. 
+            ci.MapContentIds();
 
             return importCount; 
         }
