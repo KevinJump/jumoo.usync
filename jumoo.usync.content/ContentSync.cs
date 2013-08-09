@@ -37,13 +37,24 @@ namespace jumoo.usync.content
                         }
                         else {
                             // if the source info file is missing 
-                            if ( helpers.SourceInfo.IsNew() )
-                                ExportContent(true) ; 
+                            if (helpers.SourceInfo.IsNew())
+                            {
+                                LogHelper.Info<ContentSync>("Creating Source xml"); 
+                                ExportContent(true);
+                            }
+                                
+                        }
+
+                        if (!Directory.Exists(IOHelper.MapPath(uSyncContentSettings.MediaFolder)) || uSyncContentSettings.Export)
+                        {
+                            ExportMedia();
                         }
 
                         if (uSyncContentSettings.Import)
                         {
-                            ImportContent(); 
+                            ImportContent();
+                            ImportMedia();
+                            MapContent(); 
                         }
 
                         if (uSyncContentSettings.Events)
@@ -64,11 +75,24 @@ namespace jumoo.usync.content
 
             // 1. import the content 
             int importCount = ci.ImportDiskContent();
-
+/*
             // 2. to map id's in the things that we just updated. 
             ci.MapContentIds();
+ */
 
             return importCount; 
+        }
+
+        public void MapContent()
+        {
+            ContentImporter ci = new ContentImporter();
+            ci.MapContentIds();
+        }
+
+        public void ImportMedia()
+        {
+            MediaImporter mi = new MediaImporter();
+            mi.ImportMedia();
         }
 
         public void ExportContent(bool pairs)
@@ -78,10 +102,19 @@ namespace jumoo.usync.content
             cw.WalkSite(pairs);    
         }
 
+        public void ExportMedia()
+        {
+            MediaExporter me = new MediaExporter();
+            me.Export();
+        }
+
         public void AttachEvents()
         {
             ContentEvents events = new ContentEvents();
             events.AttachEvents(); // on the save/delete.
+
+            MediaEvents mEvents = new MediaEvents();
+            mEvents.AttachEvents(); 
         }
     }
 }

@@ -10,6 +10,9 @@ using System.Xml.Linq;
 using System;
 using System.Text; 
 
+// old school to upload media
+using umbraco.cms.businesslogic.media; 
+
 namespace jumoo.usync.content.helpers
 {
     public class FileHelper
@@ -17,12 +20,16 @@ namespace jumoo.usync.content.helpers
         static string _mappedRoot = "";
         static string _mappedArchive = "";
         static string _mappedTemp = ""; // this must be in umbraco somewhere...
+        static string _mappedMediaRoot = "";
+        static string _mappedFilesRoot = "";
 
         static FileHelper()
         {
             _mappedRoot = IOHelper.MapPath(uSyncContentSettings.Folder);
             _mappedArchive = IOHelper.MapPath(uSyncContentSettings.ArchiveFolder);
-            _mappedTemp = IOHelper.MapPath("~/App_data/Temp/"); 
+            _mappedTemp = IOHelper.MapPath("~/App_data/Temp/");
+            _mappedMediaRoot = IOHelper.MapPath(uSyncContentSettings.MediaFolder);
+            _mappedFilesRoot = IOHelper.MapPath(uSyncContentSettings.Files); 
 
             if (!Directory.Exists(_mappedRoot))
                 Directory.CreateDirectory(_mappedRoot);
@@ -38,23 +45,43 @@ namespace jumoo.usync.content.helpers
             get { return _mappedTemp; }
         }
 
+        public static string uSyncMediaRoot
+        {
+            get { return _mappedMediaRoot; }
+        }
+
+
+
+        public static bool SaveMediaFile(string path, IMedia media, XElement element)
+        {
+            LogHelper.Debug<FileHelper>("SaveMedia File {0} {1}", () => path, () => media.Name);
+
+            string filename = string.Format("{0}.media", CleanFileName(media.Name));
+            string fullpath = Path.Combine(string.Format("{0}{1}", _mappedMediaRoot, path), filename);
+
+            return SaveContentBaseFile(fullpath, element); 
+
+        }
 
         public static bool SaveContentFile(string path, IContent node, XElement element)
         {
             LogHelper.Debug<FileHelper>("SaveContentFile {0} {1}", () => path, () => node.Name);
 
             string filename = string.Format("{0}.content", CleanFileName(node.Name));
-
             string fullpath = Path.Combine(string.Format("{0}{1}", _mappedRoot, path), filename);
 
+            return SaveContentBaseFile(fullpath, element) ; 
+        }
+
+        private static bool SaveContentBaseFile(string fullpath, XElement element)
+        {
             if (!Directory.Exists(Path.GetDirectoryName(fullpath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fullpath));
 
             if (System.IO.File.Exists(fullpath))
                 System.IO.File.Delete(fullpath);
 
-            element.Save(fullpath); 
-
+            element.Save(fullpath);
             return true; 
         }
 
@@ -81,6 +108,7 @@ namespace jumoo.usync.content.helpers
                 System.IO.File.Delete(fullpath); 
             }
         }
+         
 
         /// <summary>
         ///  renames a content node and any child folder it may have
@@ -156,5 +184,80 @@ namespace jumoo.usync.content.helpers
             return sb.ToString(); 
         }
 
+
+        public static void ExportMediaFile(string path, Guid key) 
+        {
+            string fileroot = IOHelper.MapPath(_mappedFilesRoot) ; 
+
+            string folder =  Path.Combine(fileroot, key.ToString() ) ; 
+            string dest = Path.Combine( folder, Path.GetFileName(path) ) ; 
+            string source = IOHelper.MapPath( string.Format("~{0}", path)) ;
+
+
+            LogHelper.Info<FileHelper>("Attempting Export {0} to {1}", () => source, () => dest); 
+
+            if ( System.IO.File.Exists(source))
+            {
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                if (System.IO.File.Exists(dest))
+                    System.IO.File.Delete(dest); 
+
+                System.IO.File.Copy(source,dest) ; 
+            }
+
+        }
+
+        public static void ImportMediaFile(Guid guid, IMedia item)
+        {
+            string fileroot = IOHelper.MapPath(_mappedFilesRoot);
+            string folder = Path.Combine(fileroot, guid.ToString());
+
+            LogHelper.Info<FileHelper>("Importing {0}", () => folder);
+
+            if (!Directory.Exists(folder))
+                return; 
+
+            foreach (var file in Directory.GetFiles(folder, "*.*"))
+            {
+
+                LogHelper.Info<FileHelper>("Import {0}", () => file); 
+
+                string filename = Path.GetFileName(file);
+
+                StreamReader s = new StreamReader(file);
+
+                LogHelper.Info<FileHelper>("####################### Before {0} {1}", () => filename, ()=> item.Name );
+                LogHelper.Info<FileHelper>("####################### Read {0} {1}", () => filename, ()=> item.ContentType.Alias );
+
+                PostedMediaFile pmf = new PostedMediaFile
+                {
+                    FileName = filename,
+                    DisplayName = item.Name,
+                    ContentType = item.ContentType.Alias,
+                    ContentLength = (int)s.BaseStream.Length,
+                    InputStream = s.BaseStream,
+                    ReplaceExisting = true
+                };
+
+                umbraco.BusinessLogic.User user = new umbraco.BusinessLogic.User(0);
+
+                var mf = MediaFactory.GetMediaFactory(item.ParentId, pmf, user);
+                //var mf = 
+
+                if (mf != null)
+                {
+                    var media = mf.HandleMedia(item.ParentId, pmf, user);
+                   
+                }
+                else
+                {
+                    LogHelper.Info<FileHelper>("######### mf not set?");
+                }
+                s.Close();
+
+            }
+        }
     }
 }

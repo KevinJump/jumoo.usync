@@ -185,7 +185,11 @@ namespace jumoo.usync.content
                 if (template != null)
                     content.Template = template;
 
-                content.SortOrder = sortOrder; 
+                content.SortOrder = sortOrder;
+                content.Name = name;
+
+                if (content.ParentId != parentId)
+                    content.ParentId = parentId; 
 
                 // load all the properties 
                 var properties = from property in element.Elements()

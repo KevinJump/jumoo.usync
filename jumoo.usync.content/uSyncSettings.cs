@@ -51,6 +51,16 @@ namespace jumoo.usync.content
             get { return (String)this["folder"]; }
         }
 
+        [ConfigurationProperty("media", DefaultValue = "~/uSync/Media/", IsRequired = false)]
+        public String Media {
+            get { return (String)this["media"] ; }
+        }
+
+        [ConfigurationProperty("files", DefaultValue= "~/uSync/Files/", IsRequired = false)]
+        public String Files {
+            get { return (String)this["files"] ; }
+        }
+
         [ConfigurationProperty("versions", DefaultValue = true, IsRequired = false)]
         public Boolean Versions
         {
@@ -116,6 +126,15 @@ namespace jumoo.usync.content
         {
             get { return _settings.Versions; }
         }
+
+        public static string MediaFolder {
+            get { return _settings.Media ; }
+        }
+
+        public static string Files { 
+            get { return _settings.Files; }
+        }
+
 
 
     }   

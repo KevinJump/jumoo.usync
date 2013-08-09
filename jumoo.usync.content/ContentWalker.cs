@@ -138,42 +138,17 @@ namespace jumoo.usync.content
 
             var nodeName = UmbracoSettings.UseLegacyXmlSchema ? "node" : FileHelper.CleanFileName(content.ContentType.Alias);
 
-            XElement xml = new XElement(nodeName);
-            
+            // XElement xml = new XElement(nodeName);
+
+            XElement xml = uSyncXmlHelper.ExportContentBase(nodeName, content); 
+                        
             // core content item properties 
-
-            // if this content has come from somewhere else, i should respect that.
-            // and write the orginal contentGuid into my source document. 
-            Guid _guid = helpers.ImportPairs.GetSourceGuid(content.Key); 
-
-            xml.Add(new XAttribute("guid", _guid));
-
             xml.Add(new XAttribute("parentGUID", content.Level > 1 ? content.Parent().Key : new Guid("00000000-0000-0000-0000-000000000000")));
             xml.Add(new XAttribute("nodeTypeAlias", content.ContentType.Alias));
             xml.Add(new XAttribute("templateAlias", content.Template == null ? "" : content.Template.Alias));
-            xml.Add(new XAttribute("id", content.Id));
+
             xml.Add(new XAttribute("sortOrder", content.SortOrder));
-            xml.Add(new XAttribute("nodeName", content.Name));
-            xml.Add(new XAttribute("isDoc", ""));
             xml.Add(new XAttribute("published", content.Published));
-            xml.Add(new XAttribute("updated", content.UpdateDate)); 
-            // xml.Add(new XAttribute("releaseDate", content.ReleaseDate));
-            
-            
-            // the properties of content
-            foreach (var property in content.Properties.Where(p => p != null))
-            {
-                // replace any IDs inteh property with the sourceGuid, on import we do this the otherway around...
-                XElement propXml = property.ToXml();
-
-                string xmlVal = ReplaceIdsWithGuid( GetInnerXML(propXml) );
-
-                XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), xmlVal));
-
-                LogHelper.Debug<ContentWalker>("parse {0}", () => p.ToString());
-
-                xml.Add(p); 
-            }
 
             return xml; 
         }
@@ -193,6 +168,7 @@ namespace jumoo.usync.content
             return path; 
         }
 
+        /*
         private string ReplaceIdsWithGuid(string propValue)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
@@ -239,6 +215,7 @@ namespace jumoo.usync.content
             reader.MoveToContent();
             return reader.ReadInnerXml();
         }
+         */
     }
 
 
