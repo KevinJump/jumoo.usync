@@ -10,9 +10,6 @@ using System.Xml.Linq;
 using System;
 using System.Text; 
 
-// old school to upload media
-using umbraco.cms.businesslogic.media; 
-
 namespace jumoo.usync.content.helpers
 {
     public class FileHelper
@@ -216,46 +213,21 @@ namespace jumoo.usync.content.helpers
 
             LogHelper.Info<FileHelper>("Importing {0}", () => folder);
 
+
             if (!Directory.Exists(folder))
-                return; 
+                return;
 
             foreach (var file in Directory.GetFiles(folder, "*.*"))
             {
 
-                LogHelper.Info<FileHelper>("Import {0}", () => file); 
+                LogHelper.Info<FileHelper>("Import {0}", () => file);
 
                 string filename = Path.GetFileName(file);
 
-                StreamReader s = new StreamReader(file);
+                FileStream s = new FileStream(file, FileMode.Open);
 
-                LogHelper.Info<FileHelper>("####################### Before {0} {1}", () => filename, ()=> item.Name );
-                LogHelper.Info<FileHelper>("####################### Read {0} {1}", () => filename, ()=> item.ContentType.Alias );
+                item.SetValue("umbracoFile", filename, s);
 
-                PostedMediaFile pmf = new PostedMediaFile
-                {
-                    FileName = filename,
-                    DisplayName = item.Name,
-                    ContentType = item.ContentType.Alias,
-                    ContentLength = (int)s.BaseStream.Length,
-                    InputStream = s.BaseStream,
-                    ReplaceExisting = true
-                };
-
-                umbraco.BusinessLogic.User user = new umbraco.BusinessLogic.User(0);
-
-                var mf = MediaFactory.GetMediaFactory(item.ParentId, pmf, user);
-                //var mf = 
-
-                if (mf != null)
-                {
-                    var media = mf.HandleMedia(item.ParentId, pmf, user);
-                   
-                }
-                else
-                {
-                    LogHelper.Info<FileHelper>("######### mf not set?");
-                }
-                s.Close();
 
             }
         }
