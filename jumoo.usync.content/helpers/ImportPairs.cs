@@ -63,7 +63,7 @@ namespace jumoo.usync.content.helpers
 
             XmlElement data = doc.CreateElement("usync.data");
             XmlElement content = doc.CreateElement("content");
-
+            
             foreach (KeyValuePair<Guid, Guid> pair in pairs)
             {
                 XmlElement p = doc.CreateElement("pair");

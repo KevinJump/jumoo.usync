@@ -7,7 +7,8 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Logging;
 
 using System.Xml.Linq;
-using System; 
+using System;
+using System.Text; 
 
 namespace jumoo.usync.content.helpers
 {
@@ -128,9 +129,31 @@ namespace jumoo.usync.content.helpers
             }
         }
 
+        const string validString = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" ; 
+
         public static string CleanFileName(string name)
         {
-            return name.ToSafeAliasWithForcingCheck(); 
+            // umbraco extension stips numbers from start - so a folder 2013 - has no name
+            // return name.ToSafeAliasWithForcingCheck();
+            //
+            
+            // A better scrub (Probibly should just bite the bullet for this one?)
+            // return name.ReplaceMany(Path.GetInvalidFileNameChars(), ' ').Replace(" ", "");
+            // return clean.ReplaceMany(extras.ToCharArray(), Char.) ; 
+
+            //
+            // a valid scrubber - keeps some consistanct with umbraco core
+            //
+            StringBuilder sb = new StringBuilder(); 
+
+            for(int i = 0; i < name.Length; i++ )
+            {
+                if ( validString.Contains(name[i].ToString()) )
+                {
+                    sb.Append(name[i]);
+                }
+            }
+            return sb.ToString(); 
         }
 
     }

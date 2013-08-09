@@ -62,7 +62,7 @@ namespace jumoo.usync.content
             ContentWalker w = new ContentWalker();
             foreach (var item in items)
             {
-                LogHelper.Info<ContentWalker>("Saving {0}", () => item.Name);
+                LogHelper.Info<ContentWalker>("Saving {0} [{1}]", () => item.Name, () => item.Name.ToSafeAlias());
                 string sourceName = SourceInfo.GetName(item.Key);
                 if ( (sourceName!= null) && (item.Name != sourceName ) )
                 {

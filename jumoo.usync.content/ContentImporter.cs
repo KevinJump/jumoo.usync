@@ -50,7 +50,7 @@ namespace jumoo.usync.content
             // if not mapping ids (i.e second pass) we blank the change list
             changes = new Dictionary<Guid, XElement>(); 
 
-            LogHelper.Info<ContentImporter>("Import Starting");
+            LogHelper.Info<ContentImporter>("## Import Starting");
             Stopwatch sw = Stopwatch.StartNew(); 
 
             importCount = 0;
@@ -65,7 +65,7 @@ namespace jumoo.usync.content
             SourceInfo.Save(); 
 
             sw.Stop();
-            LogHelper.Info<ContentImporter>("Import Complete [{0} milliseconds]", () => sw.Elapsed.TotalMilliseconds); 
+            LogHelper.Info<ContentImporter>("## Import Complete [{0} Seconds]", () => sw.Elapsed.TotalSeconds); 
 
             return importCount; 
         }
@@ -116,8 +116,6 @@ namespace jumoo.usync.content
         {
             bool _new = false; // flag to track if we created new content.
 
-            LogHelper.Info<ContentImporter>( "Importing Content Item {0}", () => element.Attribute("nodeName").Value); 
-
             // get the guid from the xml
             Guid contentGuid = new Guid(element.Attribute("guid").Value);
 
@@ -148,7 +146,7 @@ namespace jumoo.usync.content
                 // this is new..
                 // content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
                 content = _contentService.CreateContent(name, parentId, nodeType);  // should be faster?
-                LogHelper.Debug<ContentImporter>("Created New Content Node");
+                LogHelper.Debug<ContentImporter>("Created New Content Node {0}", ()=> name );
                 _new = true; 
             }
             else
@@ -159,7 +157,7 @@ namespace jumoo.usync.content
                     // it's in the bin, create a new version 
                     // content = _contentService.CreateContentWithIdentity(name, parentId, nodeType);
                     content = _contentService.CreateContent(name, parentId, nodeType);  // should be faster?
-                    LogHelper.Debug<ContentImporter>("Node was in bin, creating new node");
+                    LogHelper.Debug<ContentImporter>("Node was in bin, creating new node {0}", () => name);
                     _new = true;
                 }
                 else
@@ -171,10 +169,10 @@ namespace jumoo.usync.content
                     //
                     if ( DateTime.Compare(updateDate, content.UpdateDate) <= 0 )
                     {
-                        LogHelper.Info<ContentImporter>("Content has not changed since last read from disk");
+                        LogHelper.Info<ContentImporter>("{0} no change", ()=> name);
                         return content;
                     }
-                    LogHelper.Debug<ContentImporter>("Updating existing node");
+                    LogHelper.Debug<ContentImporter>("Updating existing node {0}", ()=> name);
                 }
             }
         

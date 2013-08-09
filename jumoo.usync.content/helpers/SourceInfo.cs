@@ -22,7 +22,7 @@ namespace jumoo.usync.content.helpers
 
         static SourceInfo()
         {
-            sourceFile = Path.Combine(FileHelper.uSyncRoot, "_sourceInfo.xml");
+            sourceFile = Path.Combine(FileHelper.uSyncTemp, "_uSyncSource.xml");
             Load(); 
         }
 

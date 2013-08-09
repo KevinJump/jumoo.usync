@@ -56,15 +56,17 @@ namespace jumoo.usync.content
 
         public void WalkSite(string path, IContent item, ContentService _contentService, bool pairs)
         {
-            if ( pairs ) {
-                SourceInfo.Add(item.Key, item.Name, item.ParentId); 
+            if (pairs)
+            {
+                SourceInfo.Add(item.Key, item.Name, item.ParentId);
             }
-            else {
-               LogHelper.Info(typeof(ContentWalker), string.Format("Walking Site {0}", item.Name.ToSafeAliasWithForcingCheck()) );
-               SaveContent(item, path); 
+            else
+            {
+                LogHelper.Info<ContentWalker>("Walking Site {0}", () => FileHelper.CleanFileName(item.Name));
+                SaveContent(item, path);
             }
             
-            path = string.Format("{0}\\{1}", path, helpers.FileHelper.CleanFileName(item.Name));
+            path = string.Format("{0}\\{1}", path, FileHelper.CleanFileName(item.Name));
             foreach (var child in _contentService.GetChildren(item.Id))
             {
                 WalkSite(path, child, _contentService, pairs);
@@ -132,9 +134,9 @@ namespace jumoo.usync.content
 
         public XElement ExportContent(IContent content)
         {
-            LogHelper.Info(typeof(ContentWalker), String.Format("Exporting content {0}", content.Name.ToSafeAliasWithForcingCheck()));
+            LogHelper.Info(typeof(ContentWalker), String.Format("Exporting content {0}", FileHelper.CleanFileName(content.Name)));
 
-            var nodeName = UmbracoSettings.UseLegacyXmlSchema ? "node" : content.ContentType.Alias.ToSafeAliasWithForcingCheck();
+            var nodeName = UmbracoSettings.UseLegacyXmlSchema ? "node" : FileHelper.CleanFileName(content.ContentType.Alias);
 
             XElement xml = new XElement(nodeName);
             
