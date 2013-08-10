@@ -53,17 +53,15 @@ namespace jumoo.usync.content
         {
             if (Directory.Exists(path))
             {
-                LogHelper.Info<MediaImporter>("ImportMedia {0}", () => path); 
+                LogHelper.Debug<MediaImporter>("ImportMedia {0}", () => path); 
 
                 foreach (string file in Directory.GetFiles(path, "*.media"))
                 {
-                    LogHelper.Info<MediaImporter>("Import Media file {0}", () => file); 
+                    LogHelper.Debug<MediaImporter>("Import Media file {0}", () => file); 
                     XElement element = XElement.Load(file);
 
                     if (element != null)
                     {
-                        LogHelper.Info<MediaImporter>("XML loaded {0}", () => element.Name);
-
                         IMedia item = ImportMediaItem(element, parentId);
 
                         if (item != null)
@@ -98,6 +96,7 @@ namespace jumoo.usync.content
                 updateDate = DateTime.Parse(element.Attribute("updated").Value);
             }
 
+
             IMedia media = _mediaService.GetById(_guid);
             if (media == null)
             {
@@ -118,8 +117,11 @@ namespace jumoo.usync.content
                     _new = true;
                 }
                 else
-                {
+                {                 
+                 
                     // data logic to speed stuff up
+
+                    // this doesn't seem to work, because media.UpdateDate doesn't return proper?
                     if (DateTime.Compare(updateDate, media.UpdateDate) <= 0)
                     {
                         LogHelper.Info<MediaImporter>("No update since last change {0}", () => name);

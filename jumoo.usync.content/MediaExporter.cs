@@ -86,7 +86,7 @@ namespace jumoo.usync.content
 
         public XElement ExportMedia(IMedia item)
         {
-            LogHelper.Info<MediaExporter>("Exporting Media {0}", () => item.Name);
+            LogHelper.Debug<MediaExporter>("Exporting Media {0}", () => item.Name);
 
             var nodeName = FileHelper.CleanFileName(item.ContentType.Alias);
 
@@ -94,7 +94,6 @@ namespace jumoo.usync.content
 
             xml.Add(new XAttribute("parentGUID", item.Level > 1 ? item.Parent().Key : new Guid("00000000-0000-0000-0000-000000000000")));
             xml.Add(new XAttribute("mediaTypeAlias", item.ContentType.Alias));
-            LogHelper.Info<MediaExporter>("Path {0}", () => item.Path);
             xml.Add(new XAttribute("path", item.Path));
             
             // helpers.FileHelper.ExportMediaFile(item.Path, ImportPairs.GetSourceGuid(item.Key)); 
@@ -126,6 +125,47 @@ namespace jumoo.usync.content
             }
             return path; 
         
+        }
+
+        public void Rename(IMedia item, string oldName)
+        {
+            string path = System.IO.Path.GetDirectoryName(GetMediaItemPath(item));
+            //  FileHelper.RenameMediaFile(path, item, oldName);
+            // generic rename (both media and Content)
+            FileHelper.RenameFile(path, item, oldName); 
+        }
+
+        public void Move(IMedia item, int oldParentId)
+        {
+
+            IMediaService _mediaService = ApplicationContext.Current.Services.MediaService; 
+
+            IMedia oldParent = _mediaService.GetById(oldParentId);
+
+            if (oldParent != null)
+            {
+                string oldPath = GetMediaItemPath(oldParent);
+                string newPath = GetMediaItemPath(item);
+
+                FileHelper.MoveFile(oldPath, newPath, item.Name, true);
+                SaveMedia(item);
+            }
+
+        }
+
+        public void Archive(IMedia item)
+        {
+            string path = System.IO.Path.GetDirectoryName(GetMediaItemPath(item));
+            Archive(item, path);
+        }
+
+        public void Archive(IMedia item, string path)
+        {
+            helpers.FileHelper.ArchiveFile(path, item, true);
+            
+            // we actually have to clean up files too with a media delete..
+            FileHelper.CleanMediaFiles(item); 
+
         }
 
     }

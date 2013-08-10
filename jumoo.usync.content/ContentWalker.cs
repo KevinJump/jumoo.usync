@@ -106,13 +106,13 @@ namespace jumoo.usync.content
 
         public void ArchiveContent(IContent content, string path)
         {
-            helpers.FileHelper.ArchiveContentFile(path, content); 
+            helpers.FileHelper.ArchiveFile(path, content); 
         }
 
         public void RenameContent(IContent content, string oldName)
         {
             string path = Path.GetDirectoryName(GetContentPath(content));
-            helpers.FileHelper.RenameContentFile(path, content, oldName); 
+            helpers.FileHelper.RenameFile(path, content, oldName); 
         }
 
         public void MoveContent(IContent content, int oldParentId)
@@ -126,7 +126,7 @@ namespace jumoo.usync.content
                 string oldPath = GetContentPath(oldParent);
                 string newPath = GetContentPath(content);
 
-                FileHelper.MoveContentFile(oldPath, newPath, content.Name);
+                FileHelper.MoveFile(oldPath, newPath, content.Name);
                 SaveContent(content); 
             }
         }

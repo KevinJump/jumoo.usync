@@ -33,7 +33,7 @@ namespace jumoo.usync.content.helpers
             xml.Add(new XAttribute("id", item.Id));
             xml.Add(new XAttribute("nodeName", item.Name));
             xml.Add(new XAttribute("isDoc", ""));
-            xml.Add(new XAttribute("update", item.UpdateDate));
+            xml.Add(new XAttribute("updated", item.UpdateDate));
 
             foreach (var property in item.Properties.Where(p => p != null))
             {
@@ -83,11 +83,11 @@ namespace jumoo.usync.content.helpers
 
             foreach (KeyValuePair<string, string> pair in replacements)
             {
-                LogHelper.Info(typeof(ContentWalker), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value));
+                LogHelper.Info(typeof(uSyncXmlHelper), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value));
                 propValue = propValue.Replace(pair.Key, pair.Value);
             }
 
-            LogHelper.Debug(typeof(ContentWalker), String.Format("Updated [{0}]", propValue));
+            LogHelper.Debug(typeof(uSyncXmlHelper), String.Format("Updated [{0}]", propValue));
             return propValue;
         }
 

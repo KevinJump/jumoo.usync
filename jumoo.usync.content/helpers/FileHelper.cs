@@ -82,12 +82,21 @@ namespace jumoo.usync.content.helpers
             return true; 
         }
 
-        public static void ArchiveContentFile(string path, IContent node)
+        public static void ArchiveFile(string path, IContentBase node, bool media = false)
         {
-            LogHelper.Debug<FileHelper>("Archiving. {0} {1}", ()=> path, ()=> node.Name); 
+            LogHelper.Debug<FileHelper>("Archiving. {0} {1}", ()=> path, ()=> node.Name);
 
-            string filename = string.Format("{0}.content", CleanFileName(node.Name));
-            string fullpath = Path.Combine(string.Format("{0}{1}", _mappedRoot, path), filename);
+            string _root = _mappedRoot;
+            string _ext = ".content";
+            if (media)
+            {
+                LogHelper.Debug<FileHelper>("Archiving a Media Item");
+                _root = _mappedMediaRoot;
+                _ext = ".media";
+            }
+
+            string filename = string.Format("{0}{1}", CleanFileName(node.Name), _ext);
+            string fullpath = Path.Combine(string.Format("{0}{1}", _root, path), filename);
 
             if ( System.IO.File.Exists(fullpath) )
             {
@@ -97,7 +106,7 @@ namespace jumoo.usync.content.helpers
                     if (!Directory.Exists(archiveFolder))
                         Directory.CreateDirectory(archiveFolder);
 
-                    string archiveFile = Path.Combine(archiveFolder, string.Format("{0}_{1}.content", CleanFileName(node.Name), DateTime.Now.ToString("ddMMyy_HHmmss")));
+                    string archiveFile = Path.Combine(archiveFolder, string.Format("{0}_{1}{2}", CleanFileName(node.Name), DateTime.Now.ToString("ddMMyy_HHmmss"),_ext));
 
                     System.IO.File.Copy(fullpath, archiveFile); 
                                      
@@ -108,36 +117,25 @@ namespace jumoo.usync.content.helpers
          
 
         /// <summary>
-        ///  renames a content node and any child folder it may have
+        ///  moves media and content files, when their parent id has changed
         /// </summary>
-        public static void RenameContentFile(string path, IContent node, string oldName)
-        {
-            LogHelper.Debug<FileHelper>("Rename {0} {1}", () => path, () => oldName);
-            
-            string folderRoot = String.Format("{0}{1}", _mappedRoot, path );
- 
-            string oldFile = Path.Combine( folderRoot, 
-                string.Format("{0}.content", CleanFileName(oldName)));
-
-            // we just delete it, because save is fired to create the new one.
-            if (System.IO.File.Exists(oldFile))
-                System.IO.File.Delete(oldFile); 
-
-            string oldFolder = Path.Combine(folderRoot, CleanFileName(oldName));
-            string newFolder = Path.Combine(folderRoot, CleanFileName(node.Name));
-
-            if ( Directory.Exists(oldFolder) )
-                Directory.Move(oldFolder, newFolder) ; 
-        }
-
-        public static void MoveContentFile(string oldPath, string newPath, string name)
+        public static void MoveFile(string oldPath, string newPath, string name, bool media = false)
         {
             LogHelper.Debug<FileHelper>("Move\n Old: {0}\n New: {1}\n Name: {2}", () => oldPath, () => newPath, () => name);
 
-            string oldRoot = String.Format("{0}{1}", _mappedRoot, oldPath);
-            string newFolder = String.Format("{0}{1}", _mappedRoot, newPath);
+            string _root = _mappedRoot;
+            string _ext = ".content";
+            if (media) 
+            {
+                LogHelper.Debug<FileHelper>("Moving a Media Item");
+                _root = _mappedMediaRoot;
+                _ext = ".media";
+            }
 
-            string oldFile = Path.Combine(oldRoot, String.Format("{0}.content", CleanFileName(name)));
+            string oldRoot = String.Format("{0}{1}", _root, oldPath);
+            string newFolder = String.Format("{0}{1}", _root, newPath);
+
+            string oldFile = Path.Combine(oldRoot, String.Format("{0}{1}", CleanFileName(name), _ext));
 
             
             if (System.IO.File.Exists(oldFile))
@@ -152,6 +150,35 @@ namespace jumoo.usync.content.helpers
 
                 Directory.Move(oldFolder, newFolder);
             }
+        }
+
+        public static void RenameFile(string path, IContentBase node, string oldName)
+        {
+            LogHelper.Info<FileHelper>("Rename {0} {1} {2}", () => path, ()=> oldName, ()=> node.GetType().Name);
+
+            string _root = _mappedRoot ; 
+            string _ext = ".content"; 
+            if (node.GetType() == typeof(Media))
+            {
+                LogHelper.Info<FileHelper>("Renaming a Media Item"); 
+                _root = _mappedMediaRoot;
+                _ext = ".media"; 
+            }
+
+            string folderRoot = String.Format("{0}{1}", _root, path);
+
+            string oldFile = Path.Combine(folderRoot,
+                String.Format("{0}{1}", CleanFileName(oldName), _ext));
+
+            if (System.IO.File.Exists(oldFile))
+                System.IO.File.Delete(oldFile);
+
+            string oldFolder = Path.Combine(folderRoot, CleanFileName(oldName));
+            string newFolder = Path.Combine(folderRoot, CleanFileName(node.Name));
+
+            if (Directory.Exists(oldFolder))
+                Directory.Move(oldFolder, newFolder);
+
         }
 
         const string validString = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" ; 
@@ -211,7 +238,7 @@ namespace jumoo.usync.content.helpers
             string fileroot = IOHelper.MapPath(_mappedFilesRoot);
             string folder = Path.Combine(fileroot, guid.ToString());
 
-            LogHelper.Info<FileHelper>("Importing {0}", () => folder);
+            LogHelper.Debug<FileHelper>("Importing {0}", () => folder);
 
 
             if (!Directory.Exists(folder))
@@ -220,7 +247,7 @@ namespace jumoo.usync.content.helpers
             foreach (var file in Directory.GetFiles(folder, "*.*"))
             {
 
-                LogHelper.Info<FileHelper>("Import {0}", () => file);
+                LogHelper.Debug<FileHelper>("Import {0}", () => file);
 
                 string filename = Path.GetFileName(file);
 
@@ -228,7 +255,32 @@ namespace jumoo.usync.content.helpers
 
                 item.SetValue("umbracoFile", filename, s);
 
+                s.Close(); 
 
+
+            }
+        }
+
+        public static void CleanMediaFiles(IMedia item)
+        {
+            string fileRoot = IOHelper.MapPath(_mappedFilesRoot);
+            string folder = Path.Combine(fileRoot, ImportPairs.GetSourceGuid(item.Key).ToString());
+            
+            try
+            {
+
+                if (Directory.Exists(folder))
+                {
+                    foreach (var file in Directory.GetFiles(folder))
+                    {
+                        System.IO.File.Delete(file);
+                    }
+                    Directory.Delete(folder);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error<FileHelper>("Couldn't clean files folder", ex);
             }
         }
     }
