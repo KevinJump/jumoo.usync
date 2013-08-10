@@ -51,7 +51,7 @@ namespace jumoo.usync.content
             get { return (String)this["folder"]; }
         }
 
-        [ConfigurationProperty("media", DefaultValue = "~/uSync/Media/", IsRequired = false)]
+        [ConfigurationProperty("media", DefaultValue = "~/uSync/MediaItems/", IsRequired = false)]
         public String Media {
             get { return (String)this["media"] ; }
         }
