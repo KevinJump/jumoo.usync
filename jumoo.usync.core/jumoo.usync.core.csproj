@@ -30,14 +30,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="businesslogic">
-      <HintPath>..\..\..\..\..\..\Dev\Umbraco\versions\6.1.3\bin\businesslogic.dll</HintPath>
+    <Reference Include="businesslogic, Version=1.0.4954.19343, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Refrences\businesslogic.dll</HintPath>
     </Reference>
-    <Reference Include="cms">
-      <HintPath>..\..\..\..\..\..\Dev\Umbraco\versions\6.1.3\bin\cms.dll</HintPath>
+    <Reference Include="cms, Version=1.0.4954.19343, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Refrences\cms.dll</HintPath>
     </Reference>
-    <Reference Include="interfaces">
-      <HintPath>..\..\..\..\..\..\Dev\Umbraco\versions\6.1.3\bin\interfaces.dll</HintPath>
+    <Reference Include="interfaces, Version=1.0.4954.19342, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Refrences\interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,14 +50,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="umbraco">
-      <HintPath>..\..\..\..\..\..\Dev\Umbraco\versions\6.1.3\bin\umbraco.dll</HintPath>
+    <Reference Include="umbraco, Version=1.0.4954.19345, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Refrences\umbraco.dll</HintPath>
     </Reference>
-    <Reference Include="Umbraco.Core">
-      <HintPath>..\..\..\..\..\..\Dev\Umbraco\versions\6.1.3\bin\Umbraco.Core.dll</HintPath>
+    <Reference Include="Umbraco.Core, Version=1.0.4954.19342, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Refrences\Umbraco.Core.dll</HintPath>
     </Reference>
-    <Reference Include="umbraco.providers">
-      <HintPath>..\..\..\..\..\..\Dev\Umbraco\versions\6.1.3\bin\umbraco.providers.dll</HintPath>
+    <Reference Include="umbraco.providers, Version=1.0.4954.19344, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Refrences\umbraco.providers.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -66,7 +72,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>@XCOPY "$(TargetPath)" "E:\Files\Dev\Umbraco\versions\6.1.3\bin\" /y /i /q</PostBuildEvent>
+    <PostBuildEvent>REM @XCOPY "$(TargetPath)" "E:\Files\Dev\Umbraco\versions\6.1.3\bin\" /y /i /q</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
