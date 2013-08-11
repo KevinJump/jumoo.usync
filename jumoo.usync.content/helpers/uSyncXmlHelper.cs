@@ -50,9 +50,10 @@ namespace jumoo.usync.content.helpers
                 }
 
 
-                XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), propXml));
+                // XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), propXml));
+                // LogHelper.Debug<uSyncXmlHelper>("Parse {0}", () => p.ToString()); 
 
-                xml.Add(p);
+                xml.Add(propXml);
 
             }
 

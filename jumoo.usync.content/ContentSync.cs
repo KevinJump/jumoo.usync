@@ -45,11 +45,13 @@ namespace jumoo.usync.content
                                 
                         }
 
+                        // if the mediaItems folder isn't there we run export media
                         if (!Directory.Exists(IOHelper.MapPath(uSyncContentSettings.MediaFolder)) || uSyncContentSettings.Export)
                         {
                             ExportMedia();
                         }
 
+                        // we do the import
                         if (uSyncContentSettings.Import)
                         {
                             ImportContent();
@@ -57,6 +59,7 @@ namespace jumoo.usync.content
                             MapContent(); 
                         }
 
+                        // we attach events...
                         if (uSyncContentSettings.Events)
                         {
                             AttachEvents();
@@ -69,16 +72,13 @@ namespace jumoo.usync.content
             }
         }
 
+        #region Import
         public int ImportContent()
         {
             ContentImporter ci = new ContentImporter();
 
             // 1. import the content 
             int importCount = ci.ImportDiskContent();
-/*
-            // 2. to map id's in the things that we just updated. 
-            ci.MapContentIds();
- */
 
             return importCount; 
         }
@@ -94,7 +94,9 @@ namespace jumoo.usync.content
             MediaImporter mi = new MediaImporter();
             mi.ImportMedia();
         }
+        #endregion
 
+        #region Export
         public void ExportContent(bool pairs)
         {
             // do the content exoort
@@ -107,14 +109,17 @@ namespace jumoo.usync.content
             MediaExporter me = new MediaExporter();
             me.Export();
         }
+        #endregion 
 
+        #region Events 
         public void AttachEvents()
         {
             ContentEvents events = new ContentEvents();
             events.AttachEvents(); // on the save/delete.
 
             MediaEvents mEvents = new MediaEvents();
-            mEvents.AttachEvents(); 
+            mEvents.AttachEvents();
         }
+        #endregion 
     }
 }
