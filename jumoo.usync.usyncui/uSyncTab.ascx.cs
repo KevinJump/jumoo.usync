@@ -6,7 +6,9 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 
 using jumoo.usync.content;
-// using jumoo.usync.packages; 
+// using jumoo.usync.packages;
+
+using System.Diagnostics;  
 
 namespace jumoo.usync.usyncui
 {
@@ -17,33 +19,41 @@ namespace jumoo.usync.usyncui
 
         }
 
-        protected void exportContent_Click(object sender, EventArgs e)
+
+        protected void fullImport_Click(object sender, EventArgs e)
         {
-            // do the content exoort
-            ContentWalker cw = new ContentWalker();
-            cw.WalkSite(false);
+            Stopwatch sw = Stopwatch.StartNew();
 
-            exportStatus.Text = "Content Exported"; 
-            
+            ContentImporter ci = new ContentImporter(); 
+            int contentCount = ci.ImportDiskContent();
 
-        }
+            MediaImporter mi = new MediaImporter();
+            int mediaCount = mi.ImportMedia();
 
-        protected void importContent_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
-
-            ContentImporter ci = new ContentImporter();
-
-            // 1. import the content 
-            int importCount = ci.ImportDiskContent(); 
-
-            // 2. import again but try to map id's
-            ci.MapContentIds();
+            // we map ids at the end..
+            ci.MapContentIds(); 
 
             sw.Stop(); 
 
-            importStatus.Text = String.Format("{0} Content nodes imported in {1} seconds", importCount, sw.Elapsed.TotalSeconds);
+            lblStatus.Text = String.Format("Imported {0} content items and {1} media files [{2} seconds]", 
+                contentCount, mediaCount, sw.Elapsed.TotalSeconds); 
         }
 
+        protected void fullExport_Click(object sender, EventArgs e)
+        {
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            ContentWalker cw = new ContentWalker(); 
+            int contentCount = cw.WalkSite(false);
+
+            MediaExporter me = new MediaExporter();
+            int mediaCount = me.Export(); 
+
+            sw.Stop(); 
+
+            lblStatus.Text = String.Format("Exported {0} content nodes and {1} media items [{2} seconds]", 
+                contentCount, mediaCount, sw.Elapsed.TotalSeconds); 
+        }
     }
 }

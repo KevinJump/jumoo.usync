@@ -13,39 +13,30 @@ namespace jumoo.usync.usyncui {
     public partial class uSyncTab {
         
         /// <summary>
-        /// exportContent control.
+        /// fullImport control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button exportContent;
+        protected global::System.Web.UI.WebControls.Button fullImport;
         
         /// <summary>
-        /// exportStatus control.
+        /// fullExport control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label exportStatus;
+        protected global::System.Web.UI.WebControls.Button fullExport;
         
         /// <summary>
-        /// importContent control.
+        /// lblStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button importContent;
-        
-        /// <summary>
-        /// importStatus control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label importStatus;
+        protected global::System.Web.UI.WebControls.Label lblStatus;
     }
 }

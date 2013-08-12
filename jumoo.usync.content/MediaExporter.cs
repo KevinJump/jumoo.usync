@@ -23,15 +23,17 @@ namespace jumoo.usync.content
     /// </summary>
     public class MediaExporter
     {
+        int _count; 
         public MediaExporter()
         {
 
         }
 
-        public void Export()
+        public int Export()
         {
             LogHelper.Info<MediaExporter>("Exporting Content") ; 
             Stopwatch sw = Stopwatch.StartNew() ;
+            _count = 0; 
 
             IMediaService _mediaService = ApplicationContext.Current.Services.MediaService; 
 
@@ -44,6 +46,8 @@ namespace jumoo.usync.content
 
             sw.Stop();
             LogHelper.Info<MediaExporter>("Media Export Complete [{0} Seconds]", () => sw.Elapsed.TotalSeconds);
+
+            return _count;  
 
         }
 
@@ -75,6 +79,7 @@ namespace jumoo.usync.content
             {
                 if (FileHelper.SaveMediaFile(path, media, itemXml))
                 {
+                    _count++;
                     SourceInfo.Add(media.Key, media.Name, media.ParentId);
                 }
             }

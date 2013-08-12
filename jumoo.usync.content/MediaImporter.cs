@@ -23,7 +23,8 @@ namespace jumoo.usync.content
     public class MediaImporter
     {
         PackagingService _packager;
-        IMediaService _mediaService; 
+        IMediaService _mediaService;
+        int _count; 
 
         public MediaImporter()
         {
@@ -33,9 +34,10 @@ namespace jumoo.usync.content
             ImportPairs.LoadFromDisk();        
         }
 
-        public void ImportMedia()
+        public int ImportMedia()
         {
             string mediaRoot = FileHelper.uSyncMediaRoot;
+            _count = 0; 
 
             LogHelper.Info<MediaImporter>(">> Media Import starting");
             Stopwatch sw = Stopwatch.StartNew();
@@ -47,6 +49,8 @@ namespace jumoo.usync.content
 
             sw.Stop();
             LogHelper.Info<MediaImporter>("<< Media Import complete [{0} seconds]", () => sw.Elapsed.TotalSeconds);
+
+            return _count; 
         }
 
         public void ImportMedia(string path, int parentId)
@@ -81,6 +85,7 @@ namespace jumoo.usync.content
         public IMedia ImportMediaItem(XElement element, int parentId)
         {
             bool _new = false;
+            _count++; 
 
             Guid mediaGuid = new Guid(element.Attribute("guid").Value);
 

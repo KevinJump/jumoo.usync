@@ -29,16 +29,19 @@ namespace jumoo.usync.content
     /// </summary>
     public class ContentWalker
     {
+        int _count; 
+
         public ContentWalker()
         {
 
         }
 
 
-        public void WalkSite(bool pairs)
+        public int WalkSite(bool pairs)
         {
             LogHelper.Info<ContentWalker>("Content Walk Started");
-            Stopwatch sw = Stopwatch.StartNew(); 
+            Stopwatch sw = Stopwatch.StartNew();
+            _count = 0;
 
             ContentService _contentService = new ContentService();
 
@@ -51,7 +54,8 @@ namespace jumoo.usync.content
             SourceInfo.Save();
 
             sw.Stop(); 
-            LogHelper.Info<ContentWalker>("Content Walk Completed [{0} milliseconds]", ()=> sw.Elapsed.TotalMilliseconds ); 
+            LogHelper.Info<ContentWalker>("Content Walk Completed [{0} milliseconds]", ()=> sw.Elapsed.TotalMilliseconds );
+            return _count; 
         }
 
         public void WalkSite(string path, IContent item, ContentService _contentService, bool pairs)
@@ -89,6 +93,7 @@ namespace jumoo.usync.content
             {
                 if (helpers.FileHelper.SaveContentFile(path, content, itemXml))
                 {
+                    _count++;
                     SourceInfo.Add(content.Key, content.Name, content.ParentId);                    
                 }
             }

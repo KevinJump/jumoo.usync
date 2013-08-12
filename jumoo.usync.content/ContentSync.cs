@@ -73,14 +73,27 @@ namespace jumoo.usync.content
         }
 
         #region Import
+
+        /// <summary>
+        ///  import everything from Disk 
+        ///     we import content, then media then we attempt to map any ids (in content)
+        /// </summary>
+        public int ImportAll()
+        {
+            int count = 0;
+            count = ImportContent();
+            count += ImportMedia();
+
+            MapContent();
+
+            return count; 
+        }
+
+
         public int ImportContent()
         {
             ContentImporter ci = new ContentImporter();
-
-            // 1. import the content 
-            int importCount = ci.ImportDiskContent();
-
-            return importCount; 
+            return ci.ImportDiskContent();
         }
 
         public void MapContent()
@@ -89,25 +102,25 @@ namespace jumoo.usync.content
             ci.MapContentIds();
         }
 
-        public void ImportMedia()
+        public int ImportMedia()
         {
             MediaImporter mi = new MediaImporter();
-            mi.ImportMedia();
+            return mi.ImportMedia();
         }
         #endregion
 
         #region Export
-        public void ExportContent(bool pairs)
+        public int ExportContent(bool pairs)
         {
             // do the content exoort
             ContentWalker cw = new ContentWalker();
-            cw.WalkSite(pairs);    
+            return cw.WalkSite(pairs);    
         }
 
-        public void ExportMedia()
+        public int ExportMedia()
         {
             MediaExporter me = new MediaExporter();
-            me.Export();
+            return me.Export();
         }
         #endregion 
 

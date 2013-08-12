@@ -50,10 +50,10 @@ namespace jumoo.usync.content.helpers
                 }
 
 
-                // XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), propXml));
-                // LogHelper.Debug<uSyncXmlHelper>("Parse {0}", () => p.ToString()); 
+                XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), xmlVal));
+                LogHelper.Debug<uSyncXmlHelper>("Parse {0}", () => p.ToString()); 
 
-                xml.Add(propXml);
+                xml.Add(p);
 
             }
 
@@ -84,7 +84,7 @@ namespace jumoo.usync.content.helpers
 
             foreach (KeyValuePair<string, string> pair in replacements)
             {
-                LogHelper.Info(typeof(uSyncXmlHelper), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value));
+                LogHelper.Debug(typeof(uSyncXmlHelper), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value));
                 propValue = propValue.Replace(pair.Key, pair.Value);
             }
 
@@ -94,13 +94,28 @@ namespace jumoo.usync.content.helpers
 
         private static Guid? GetGuidFromId(int id)
         {
+            LogHelper.Debug<uSyncXmlHelper>("Getting guid from id {0}", () => id);
             ContentService cs = new ContentService();
 
             IContent contentItem = cs.GetById(id);
             if (contentItem != null)
+            {
                 return contentItem.Key;
+            }
             else
-                return null;
+            {
+                // try media ?
+                IMediaService ms = ApplicationContext.Current.Services.MediaService;
+                IMedia item = ms.GetById(id);
+                if (item != null)
+                {
+                    return item.Key;
+                }
+                else
+                {
+                    return null;
+                }
+            }
 
         }
 
