@@ -29,7 +29,7 @@ namespace jumoo.usync.content.helpers
         public static bool IsNew()
         {
             //
-            // esier to read than return !File.Exisits(sourceFile) 
+            // easier to read than return !File.Exisits(sourceFile) 
             //
             if (File.Exists(sourceFile))
                 return false;

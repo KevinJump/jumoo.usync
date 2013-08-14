@@ -9,8 +9,13 @@ using System.Xml.Linq;
 namespace jumoo.usync.content.helpers
 {
     /// <summary>
-    ///  this and sort pairs are very similar you could 
-    ///  probibly just template them out and make it neater
+    ///  Import pairs, takes the GUID that a peice of content arrives at our install with
+    ///  and maps it to the GUID on our system.
+    ///  
+    ///  when ever a guid is then written out by uSync, it is always set back to the master
+    ///  GUID (that is the GUID of the umbraco install that created the content first) that
+    ///  way mapping will work across all umbraco installs, as long as they all agree on 
+    ///  which install created a peice of content. 
     /// </summary>
     public class ImportPairs
     {

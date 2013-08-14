@@ -23,7 +23,15 @@ namespace jumoo.usync.content.helpers
     /// </summary>
     public class uSyncXmlHelper
     {
-        public static XElement ExportContentBase(string type, IContentBase item, bool props = true)
+        /// <summary>
+        ///  export the basics of content items, the stuff shared by both
+        ///  Content Items and Media Items
+        /// </summary>
+        /// <param name="type">the doctype or mediatype name</param>
+        /// <param name="item">the item it's self</param>
+        /// <param name="mapProps">are we mapping the ids?</param>
+        /// <returns></returns>
+        public static XElement ExportContentBase(string type, IContentBase item, bool mapProps = true)
         {
             XElement xml = new XElement(type);
 
@@ -40,7 +48,7 @@ namespace jumoo.usync.content.helpers
                 XElement propXml = property.ToXml();
 
                 string xmlVal = "";
-                if (props)
+                if (mapProps)
                 {
                     xmlVal = ReplaceIdsWithGuid(GetInnerXML(propXml));
                 }
@@ -50,11 +58,10 @@ namespace jumoo.usync.content.helpers
                 }
 
 
-                XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), xmlVal));
-                LogHelper.Debug<uSyncXmlHelper>("Parse {0}", () => p.ToString()); 
+                XElement p = XElement.Parse(string.Format("<{0}>{1}</{0}>", propXml.Name.ToString(), xmlVal), LoadOptions.PreserveWhitespace);
+                LogHelper.Debug<uSyncXmlHelper>("Parse {0}", () => p.ToString());
 
                 xml.Add(p);
-
             }
 
             return xml;
@@ -64,20 +71,32 @@ namespace jumoo.usync.content.helpers
 
         #region Helpers 
 
+        /// <summary>
+        ///  takes a string of XML, looks for things that might be Ids and 
+        ///  attempts to find the corisponding GUID so we can bring them
+        ///  accross to our other install
+        /// </summary>
+        /// <param name="propValue">the xml of the object</param>
+        /// <returns>xml string with all the ids replaced with GUIDs</returns>
         private static string ReplaceIdsWithGuid(string propValue)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
 
             // look for things that might be Ids
-            foreach (Match m in Regex.Matches(propValue, @"\d{1,10}"))
+            foreach (Match m in Regex.Matches(propValue, @"\d{1,9}"))
             {
-                Guid? localGuid = GetGuidFromId(int.Parse(m.Value));
-                if (localGuid != null)
+                int id ;
+                
+                if (int.TryParse(m.Value, out id))
                 {
-                    if (!replacements.ContainsKey(m.Value))
+                    Guid? localGuid = GetGuidFromId(id);
+                    if (localGuid != null)
                     {
-                        Guid sourceGuid = helpers.ImportPairs.GetSourceGuid(localGuid.Value);
-                        replacements.Add(m.Value, sourceGuid.ToString().ToUpper());
+                        if (!replacements.ContainsKey(m.Value))
+                        {
+                            Guid sourceGuid = ImportPairs.GetSourceGuid(localGuid.Value);
+                            replacements.Add(m.Value, sourceGuid.ToString().ToUpper());
+                        }
                     }
                 }
             }
@@ -92,6 +111,13 @@ namespace jumoo.usync.content.helpers
             return propValue;
         }
 
+
+        /// <summary>
+        ///  takes an ID
+        ///  and goes and gets the GUID out of umbraco
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private static Guid? GetGuidFromId(int id)
         {
             LogHelper.Debug<uSyncXmlHelper>("Getting guid from id {0}", () => id);
@@ -119,6 +145,11 @@ namespace jumoo.usync.content.helpers
 
         }
 
+        /// <summary>
+        ///  gets the innetXML from an XElement. 
+        /// </summary>
+        /// <param name="parent">XElement to get xml for</param>
+        /// <returns>string inner xml of element</returns>
         private static string GetInnerXML(XElement parent)
         {
             var reader = parent.CreateReader();
