@@ -37,6 +37,25 @@ namespace jumoo.usync.content.helpers
             pairs.Add(id, key);
         }
 
+        public static void Remove(Guid id)
+        {
+            LoadFromDisk();
+            Guid key = id;
+            if (pairs.ContainsKey(id))
+            {
+                pairs.Remove(id);
+                SaveToDisk(); 
+                return;
+            }
+
+            if (pairs.ContainsValue(id))
+            {
+                key = pairs.FirstOrDefault(x => x.Value == id).Key;
+                pairs.Remove(key);
+                SaveToDisk(); 
+            }            
+        }
+
         public static void LoadFromDisk()
         {
             // blank it. 

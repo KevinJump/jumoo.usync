@@ -45,6 +45,12 @@ namespace jumoo.usync.content.helpers
             source.Add(guid, new Tuple<string,int>(name, parent));
         }
 
+        public static void Remove(Guid guid)
+        {
+            if (source.ContainsKey(guid))
+                source.Remove(guid);
+        }
+
         public static void Save()
         {
             if (File.Exists(sourceFile))

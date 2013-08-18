@@ -169,7 +169,10 @@ namespace jumoo.usync.content
             helpers.FileHelper.ArchiveFile(path, item, true);
             
             // we actually have to clean up files too with a media delete..
-            FileHelper.CleanMediaFiles(item); 
+            FileHelper.CleanMediaFiles(item);
+
+            SourceInfo.Remove(item.Key);
+            ImportPairs.Remove(item.Key); 
 
         }
 

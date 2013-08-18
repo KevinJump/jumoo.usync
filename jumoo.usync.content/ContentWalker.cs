@@ -111,7 +111,9 @@ namespace jumoo.usync.content
 
         public void ArchiveContent(IContent content, string path)
         {
-            helpers.FileHelper.ArchiveFile(path, content); 
+            helpers.FileHelper.ArchiveFile(path, content);
+            SourceInfo.Remove(content.Key);
+            ImportPairs.Remove(content.Key); 
         }
 
         public void RenameContent(IContent content, string oldName)

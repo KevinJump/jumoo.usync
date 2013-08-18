@@ -25,9 +25,11 @@ namespace jumoo.usync.content
 
         void MediaService_Trashing(IMediaService sender, Umbraco.Core.Events.MoveEventArgs<IMedia> e)
         {
+            SourceInfo.Load();
             LogHelper.Info<MediaEvents>("Archiving {0}", () => e.Entity.Name); 
             MediaExporter me = new MediaExporter();
             me.Archive(e.Entity);
+            SourceInfo.Save(); 
         }
 
         void MediaService_Saved(IMediaService sender, Umbraco.Core.Events.SaveEventArgs<IMedia> e)
