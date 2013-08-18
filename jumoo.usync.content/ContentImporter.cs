@@ -268,6 +268,10 @@ namespace jumoo.usync.content
             {
                 IContent content = _contentService.GetById(change.Key);
 
+                // sort order is done on second pass too. 
+                int sortOrder = int.Parse(change.Value.Attribute("sortOrder").Value);
+                content.SortOrder = sortOrder; 
+                
                 if (content != null)
                 {
                     // load all the properties 
