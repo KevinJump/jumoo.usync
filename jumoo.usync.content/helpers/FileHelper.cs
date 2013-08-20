@@ -239,25 +239,69 @@ namespace jumoo.usync.content.helpers
             string folder = Path.Combine(fileroot, guid.ToString());
 
             LogHelper.Debug<FileHelper>("Importing {0}", () => folder);
-
-
             if (!Directory.Exists(folder))
                 return;
+
+            //
+            // we look for an existing folder, if it's there we get the
+            // file info. we only want to import changed files, as it 
+            // creates directories all the time
+            //
+
+            FileInfo currentFile = null; 
+            // some is it already there logic ? 
+            if (item.HasProperty("umbracoFile"))
+            {
+                if (item.GetValue("umbracoFile") != null)
+                {
+                    string umbracoFile = item.GetValue("umbracoFile").ToString();
+
+                    //
+                    // we check it's in the media folder, because later we delete it and all it's sub folders
+                    // if for some reason it was blank or mallformed we could trash the whole umbraco just here.
+                    //
+                    if (umbracoFile.StartsWith("/media/")) 
+                    {
+                        string f = IOHelper.MapPath(string.Format("~{0}", item.GetValue("umbracoFile").ToString()));
+                        if (System.IO.File.Exists(f))
+                        {
+                            LogHelper.Debug<FileHelper>("Getting info for {0}", () => f); 
+                            currentFile = new FileInfo(f);                             
+                        }
+                    }
+                }
+            }
+
+
+
 
             foreach (var file in Directory.GetFiles(folder, "*.*"))
             {
 
                 LogHelper.Debug<FileHelper>("Import {0}", () => file);
 
-                string filename = Path.GetFileName(file);
 
-                FileStream s = new FileStream(file, FileMode.Open);
+                if (currentFile != null)
+                {
+                    // do some file comparison, we only import if the new file
+                    // is diffrent than the existing one..
+                    if (!FilesAreEqual(currentFile, new FileInfo(file)))
+                    {
+                        LogHelper.Info<FileHelper>("Updating umbracoFile with {0} ", () => file); 
+                        string filename = Path.GetFileName(file);
 
-                item.SetValue("umbracoFile", filename, s);
+                        FileStream s = new FileStream(file, FileMode.Open);
+                        item.SetValue("umbracoFile", filename, s);
+                        s.Close();
 
-                s.Close(); 
-
-
+                        // ok so now we've gone and created a new folder, we need to delete the old on
+                        if (Directory.Exists(currentFile.DirectoryName))
+                        {
+                            LogHelper.Info<FileHelper>("Removing old media folder location {0}", () => currentFile.DirectoryName);
+                            Directory.Delete(currentFile.DirectoryName, true);
+                        }
+                    }
+                }
             }
         }
 
@@ -283,5 +327,33 @@ namespace jumoo.usync.content.helpers
                 LogHelper.Error<FileHelper>("Couldn't clean files folder", ex);
             }
         }
-    }
+
+        const int BYTES_TO_READ = sizeof(Int64);
+
+        private static bool FilesAreEqual(FileInfo first, FileInfo second)
+        {
+            if (first.Length != second.Length)
+                return false;
+
+            int iterations = (int)Math.Ceiling((double)first.Length / BYTES_TO_READ);
+
+            using (FileStream fs1 = first.OpenRead())
+            using (FileStream fs2 = second.OpenRead())
+            {
+                byte[] one = new byte[BYTES_TO_READ];
+                byte[] two = new byte[BYTES_TO_READ];
+
+                for (int i = 0; i < iterations; i++)
+                {
+                     fs1.Read(one, 0, BYTES_TO_READ);
+                     fs2.Read(two, 0, BYTES_TO_READ);
+
+                    if (BitConverter.ToInt64(one,0) != BitConverter.ToInt64(two,0))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+    }    
 }
