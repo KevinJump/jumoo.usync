@@ -85,7 +85,6 @@ namespace jumoo.usync.content
         public IMedia ImportMediaItem(XElement element, int parentId)
         {
             bool _new = false;
-            _count++; 
 
             Guid mediaGuid = new Guid(element.Attribute("guid").Value);
 
@@ -135,9 +134,10 @@ namespace jumoo.usync.content
                     LogHelper.Info<MediaImporter>("Updating existing media node {0}", () => name); 
                 }
             }
-
+            
             if (media != null)
             {
+                _count++;
                 media.Name = name;
 
                 if (media.ParentId != parentId)

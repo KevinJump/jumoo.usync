@@ -41,6 +41,9 @@ namespace jumoo.usync.content
         {
             LogHelper.Info<ContentEvents>("Trashing {0}", () => e.Entity.Name);
             ArchiveContentItem(e.Entity);
+
+
+
         }
 
         /// <summary>

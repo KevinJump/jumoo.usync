@@ -26,6 +26,7 @@ namespace jumoo.usync.content
     {
         PackagingService _packager;
         IContentService _contentService;
+        IMediaService _mediaService ; 
 
         static Dictionary<Guid, XElement> changes; 
         
@@ -35,6 +36,7 @@ namespace jumoo.usync.content
         {
             _packager = ApplicationContext.Current.Services.PackagingService;
             _contentService = ApplicationContext.Current.Services.ContentService;
+            _mediaService = ApplicationContext.Current.Services.MediaService    ; 
 
             // load the import table (from disk)
             ImportPairs.LoadFromDisk(); 
@@ -292,12 +294,13 @@ namespace jumoo.usync.content
 
                     if (content.Published)
                     {
-                        _contentService.SaveAndPublish(content, 0, false);
+                        _contentService.SaveAndPublish(content, 0, true);
                     }
                     else
                     {
-                        _contentService.Save(content,0, false);
+                        _contentService.Save(content, 0, true);
                     }
+
                 }
             }
 
@@ -322,7 +325,7 @@ namespace jumoo.usync.content
             {
                 int id = GetIdFromGuid(Guid.Parse(m.Value));
 
-                if ( !replacements.ContainsKey(m.Value))
+                if ( (id != -1)  && (!replacements.ContainsKey(m.Value)) )
                 {
                     replacements.Add(m.Value, id.ToString() );
                 }
@@ -362,12 +365,18 @@ namespace jumoo.usync.content
         {
             Guid sourceGuid = helpers.ImportPairs.GetSourceGuid(guid);
 
-            ContentService cs = new ContentService();
-            IContent c = cs.GetById(sourceGuid);
+            IContent c = _contentService.GetById(sourceGuid) ;
             if (c != null)
                 return c.Id;
             else
-                return 1000;
+            {
+                // it's possible it's a Media Object
+                IMedia m = _mediaService.GetById(sourceGuid);
+                if (m != null)
+                    return m.Id;
+                else
+                    return -1;
+            }
         }
 
     }
