@@ -358,7 +358,12 @@ namespace jumoo.usync.content
             {
                 return parent.Value;
             }
-            return xml; 
+            else
+            {
+                // if it's not CDATA we should fix the &amp; issue
+                return xml.Replace("&amp;", "&"); 
+            }
+            // return xml; 
         }
 
         private int GetIdFromGuid(Guid guid)
