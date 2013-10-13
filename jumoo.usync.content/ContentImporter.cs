@@ -132,13 +132,6 @@ namespace jumoo.usync.content
             int sortOrder = int.Parse(element.Attribute("sortOrder").Value);
             bool published = bool.Parse(element.Attribute("published").Value);
 
-            DateTime updateDate = DateTime.Now; 
-
-            if (element.Attribute("updated") != null)
-            {
-                updateDate = DateTime.Parse(element.Attribute("updated").Value);
-            }
-
             // try to load the content. 
             // even if we haven't imported it before, we might be
             // reimporting to a source system so we should have a go
@@ -169,6 +162,12 @@ namespace jumoo.usync.content
                     // run through the update. not convinced by this. but it does speed up the appstart
                     // significantly for large sites.
                     //
+                    DateTime updateDate = DateTime.Now;
+                    if (element.Attribute("updated") != null)
+                    {
+                        updateDate = DateTime.Parse(element.Attribute("updated").Value);
+                    }
+
                     if ( DateTime.Compare(updateDate, content.UpdateDate) <= 0 )
                     {
                         LogHelper.Info<ContentImporter>("{0} no change", ()=> name);
@@ -270,12 +269,13 @@ namespace jumoo.usync.content
             {
                 IContent content = _contentService.GetById(change.Key);
 
-                // sort order is done on second pass too. 
-                int sortOrder = int.Parse(change.Value.Attribute("sortOrder").Value);
-                content.SortOrder = sortOrder; 
                 
                 if (content != null)
                 {
+                    // sort order is done on second pass too. 
+                    int sortOrder = int.Parse(change.Value.Attribute("sortOrder").Value);
+                    content.SortOrder = sortOrder;
+                    
                     // load all the properties 
                     var properties = from property in change.Value.Elements()
                                      where property.Attribute("isDoc") == null

@@ -174,56 +174,5 @@ namespace jumoo.usync.content
             
             return path; 
         }
-
-        /*
-        private string ReplaceIdsWithGuid(string propValue)
-        {
-            Dictionary<string, string> replacements = new Dictionary<string, string>();
-
-            // look for things that might be Ids
-            foreach (Match m in Regex.Matches(propValue, @"\d{1,10}"))
-            {
-                Guid? localGuid = GetGuidFromId(int.Parse(m.Value));
-                if ( localGuid != null ) 
-                {
-                    if (!replacements.ContainsKey(m.Value))
-                    {
-                        Guid sourceGuid = helpers.ImportPairs.GetSourceGuid(localGuid.Value); 
-                        replacements.Add(m.Value, sourceGuid.ToString().ToUpper());
-                    }
-                }
-            }
-
-            foreach (KeyValuePair<string, string> pair in replacements)
-            {
-                LogHelper.Info(typeof(ContentWalker), String.Format("Updating Id's {0} > {1}", pair.Key, pair.Value));
-                propValue = propValue.Replace(pair.Key, pair.Value);
-            }
-
-            LogHelper.Debug(typeof(ContentWalker), String.Format("Updated [{0}]", propValue));
-            return propValue; 
-        }
-
-        private Guid? GetGuidFromId(int id)
-        {
-            ContentService cs = new ContentService();
-
-            IContent contentItem = cs.GetById(id);
-            if (contentItem != null)
-                return contentItem.Key;
-            else
-                return null;
-
-        }
-
-        private string GetInnerXML(XElement parent)
-        {
-            var reader = parent.CreateReader();
-            reader.MoveToContent();
-            return reader.ReadInnerXml();
-        }
-         */
     }
-
-
 }
