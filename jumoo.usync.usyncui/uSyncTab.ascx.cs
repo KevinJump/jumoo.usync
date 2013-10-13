@@ -45,7 +45,7 @@ namespace jumoo.usync.usyncui
             Stopwatch sw = Stopwatch.StartNew();
 
             ContentExporter cw = new ContentExporter(); 
-            int contentCount = cw.WalkSite(false);
+            int contentCount = cw.ExportSite(false);
 
             MediaExporter me = new MediaExporter();
             int mediaCount = me.Export(); 

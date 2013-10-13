@@ -57,9 +57,7 @@ namespace jumoo.usync.content
 
             importCount = 0;
 
-            string root = helpers.FileHelper.uSyncRoot;
-
-            ImportDiskContent(root, -1);
+            ImportDiskContent(FileHelper.uSyncRoot, -1);
 
             // save the import pair table.
             // SaveImportPairTable();

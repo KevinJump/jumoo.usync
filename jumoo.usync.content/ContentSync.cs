@@ -114,7 +114,7 @@ namespace jumoo.usync.content
         {
             // do the content exoort
             ContentExporter cw = new ContentExporter();
-            return cw.WalkSite(pairs);    
+            return cw.ExportSite(pairs);    
         }
 
         public int ExportMedia()

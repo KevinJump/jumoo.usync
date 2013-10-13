@@ -68,7 +68,7 @@
     <Compile Include="ContentEvents.cs" />
     <Compile Include="ContentImporter.cs" />
     <Compile Include="ContentSync.cs" />
-    <Compile Include="ContentWalker.cs" />
+    <Compile Include="ContentExporter.cs" />
     <Compile Include="helpers\FileHelper.cs" />
     <Compile Include="helpers\ImportPairs.cs" />
     <Compile Include="helpers\SourceInfo.cs" />

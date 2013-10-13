@@ -25,7 +25,14 @@ using jumoo.usync.content.helpers;
 namespace jumoo.usync.content
 {
     /// <summary>
-    ///  content walker, walks a content tree and writes it out to disk
+    ///  ContentExporter
+    ///  <para>
+    ///     Contains all the methods that are used to get content out of 
+    ///     umbraco and onto disk.
+    ///  </para>    
+    ///  <para>
+    ///     The actual content is written out in the uSyncXmlHelper class.
+    ///  </para>
     /// </summary>
     public class ContentExporter
     {
@@ -38,7 +45,7 @@ namespace jumoo.usync.content
         }
 
 
-        public int WalkSite(bool pairs)
+        public int ExportSite(bool pairs)
         {
             LogHelper.Info<ContentExporter>("Content Walk Started");
             Stopwatch sw = Stopwatch.StartNew();
@@ -53,14 +60,14 @@ namespace jumoo.usync.content
                 if (_rootContent != null)
                 {
                     string contentPath = GetContentPath(_rootContent);
-                    WalkSite(contentPath, _rootContent, pairs);
+                    ExportSite(contentPath, _rootContent, pairs);
                 }
             }
             else
             {
                 foreach (var item in _contentService.GetRootContent())
                 {
-                    WalkSite("", item, pairs);
+                    ExportSite("", item, pairs);
                 }
             }
 
@@ -72,7 +79,7 @@ namespace jumoo.usync.content
             return _count; 
         }
 
-        public void WalkSite(string path, IContent item, bool pairs)
+        public void ExportSite(string path, IContent item, bool pairs)
         {
             if (pairs)
             {
@@ -87,7 +94,7 @@ namespace jumoo.usync.content
             path = string.Format("{0}\\{1}", path, FileHelper.CleanFileName(item.Name));
             foreach (var child in _contentService.GetChildren(item.Id))
             {
-                WalkSite(path, child, pairs);
+                ExportSite(path, child, pairs);
             }
 
         }
@@ -138,9 +145,7 @@ namespace jumoo.usync.content
 
         public void MoveContent(IContent content, int oldParentId)
         {
-            ContentService contentService = new ContentService() ;
-
-            IContent oldParent = contentService.GetById(oldParentId);
+            IContent oldParent = _contentService.GetById(oldParentId);
 
             if (oldParent != null)
             {
