@@ -62,21 +62,21 @@ namespace jumoo.usync.content
         {
             SourceInfo.Load(); 
 
-            ContentWalker w = new ContentWalker();
+            ContentExporter w = new ContentExporter();
             foreach (var item in items)
             {
-                LogHelper.Info<ContentWalker>("Saving {0} [{1}]", () => item.Name, () => item.Name.ToSafeAlias());
+                LogHelper.Info<ContentExporter>("Saving {0} [{1}]", () => item.Name, () => item.Name.ToSafeAlias());
                 string sourceName = SourceInfo.GetName(item.Key);
                 if ( (sourceName!= null) && (item.Name != sourceName ) )
                 {
-                    LogHelper.Info<ContentWalker>("Rename {0}", () => item.Name);
+                    LogHelper.Info<ContentExporter>("Rename {0}", () => item.Name);
                     w.RenameContent(item, SourceInfo.GetName(item.Key));
                 }
                 
                 int? parent = SourceInfo.GetParent(item.Key) ; 
                 if ( (parent != null) && (item.ParentId != parent.Value))
                 {
-                    LogHelper.Info<ContentWalker>("Move {0}", () => item.Name);
+                    LogHelper.Info<ContentExporter>("Move {0}", () => item.Name);
                     w.MoveContent(item, parent.Value);
                 }
 
@@ -89,7 +89,7 @@ namespace jumoo.usync.content
         void ArchiveContentItems(IEnumerable<IContent> items)
         {
             SourceInfo.Load();
-            ContentWalker w = new ContentWalker();
+            ContentExporter w = new ContentExporter();
             foreach (var item in items)
             {
                 w.ArchiveContent(item);
@@ -100,7 +100,7 @@ namespace jumoo.usync.content
         void ArchiveContentItem(IContent item)
         {
             SourceInfo.Load();
-            ContentWalker w = new ContentWalker();
+            ContentExporter w = new ContentExporter();
             w.ArchiveContent(item);
             SourceInfo.Save();
         }

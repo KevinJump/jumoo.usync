@@ -113,7 +113,7 @@ namespace jumoo.usync.content
         public int ExportContent(bool pairs)
         {
             // do the content exoort
-            ContentWalker cw = new ContentWalker();
+            ContentExporter cw = new ContentExporter();
             return cw.WalkSite(pairs);    
         }
 

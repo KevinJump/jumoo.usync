@@ -72,6 +72,12 @@ namespace jumoo.usync.content
         {
             get { return (String)this["archive"]; }
         }
+
+        [ConfigurationProperty("rootContentId", DefaultValue = "", IsRequired = false)]
+        public String RootId
+        {
+            get { return (String)this["rootContentId"]; }
+        }
     }
 
     public class uSyncContentSettings
@@ -134,6 +140,12 @@ namespace jumoo.usync.content
         public static string Files { 
             get { return _settings.Files; }
         }
+
+        public static string RootId
+        {
+            get { return _settings.RootId; }
+        }
+
 
 
 

@@ -27,38 +27,52 @@ namespace jumoo.usync.content
     /// <summary>
     ///  content walker, walks a content tree and writes it out to disk
     /// </summary>
-    public class ContentWalker
+    public class ContentExporter
     {
-        int _count; 
+        int _count;
+        IContentService _contentService; 
 
-        public ContentWalker()
+        public ContentExporter()
         {
-
+            _contentService = ApplicationContext.Current.Services.ContentService; 
         }
 
 
         public int WalkSite(bool pairs)
         {
-            LogHelper.Info<ContentWalker>("Content Walk Started");
+            LogHelper.Info<ContentExporter>("Content Walk Started");
             Stopwatch sw = Stopwatch.StartNew();
             _count = 0;
 
-            ContentService _contentService = new ContentService();
-
-            foreach (var item in _contentService.GetRootContent())
+            if (!String.IsNullOrEmpty(uSyncContentSettings.RootId))
             {
-                WalkSite("", item, _contentService, pairs);
+                LogHelper.Info<ContentExporter>("Starting content walk from ID = {0}", () => uSyncContentSettings.RootId);
+                // walk from another place that isn't the root.
+                IContent _rootContent = _contentService.GetById(int.Parse(uSyncContentSettings.RootId));
+
+                if (_rootContent != null)
+                {
+                    string contentPath = GetContentPath(_rootContent);
+                    WalkSite(contentPath, _rootContent, pairs);
+                }
+            }
+            else
+            {
+                foreach (var item in _contentService.GetRootContent())
+                {
+                    WalkSite("", item, pairs);
+                }
             }
 
             // save the pair table we use it for renames...
             SourceInfo.Save();
 
             sw.Stop(); 
-            LogHelper.Info<ContentWalker>("Content Walk Completed [{0} milliseconds]", ()=> sw.Elapsed.TotalMilliseconds );
+            LogHelper.Info<ContentExporter>("Content Walk Completed [{0} milliseconds]", ()=> sw.Elapsed.TotalMilliseconds );
             return _count; 
         }
 
-        public void WalkSite(string path, IContent item, ContentService _contentService, bool pairs)
+        public void WalkSite(string path, IContent item, bool pairs)
         {
             if (pairs)
             {
@@ -66,14 +80,14 @@ namespace jumoo.usync.content
             }
             else
             {
-                LogHelper.Info<ContentWalker>("Walking Site {0}", () => FileHelper.CleanFileName(item.Name));
+                LogHelper.Info<ContentExporter>("Walking Site {0}", () => FileHelper.CleanFileName(item.Name));
                 SaveContent(item, path);
             }
             
             path = string.Format("{0}\\{1}", path, FileHelper.CleanFileName(item.Name));
             foreach (var child in _contentService.GetChildren(item.Id))
             {
-                WalkSite(path, child, _contentService, pairs);
+                WalkSite(path, child, pairs);
             }
 
         }
@@ -98,7 +112,7 @@ namespace jumoo.usync.content
                 }
             }
             else {
-                LogHelper.Info(typeof(ContentWalker), "Content XML came back as null");
+                LogHelper.Info(typeof(ContentExporter), "Content XML came back as null");
             }
 
         }
@@ -141,7 +155,7 @@ namespace jumoo.usync.content
 
         public XElement ExportContent(IContent content)
         {
-            LogHelper.Info(typeof(ContentWalker), String.Format("Exporting content {0}", FileHelper.CleanFileName(content.Name)));
+            LogHelper.Info(typeof(ContentExporter), String.Format("Exporting content {0}", FileHelper.CleanFileName(content.Name)));
 
             var nodeName = UmbracoSettings.UseLegacyXmlSchema ? "node" : FileHelper.CleanFileName(content.ContentType.Alias);
 
