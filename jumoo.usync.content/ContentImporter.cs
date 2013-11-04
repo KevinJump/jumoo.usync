@@ -366,7 +366,9 @@ namespace jumoo.usync.content
 
         private int GetIdFromGuid(Guid guid)
         {
-            Guid sourceGuid = helpers.ImportPairs.GetSourceGuid(guid);
+            Guid sourceGuid = helpers.ImportPairs.GetTargetGuid(guid);
+
+            LogHelper.Debug<ContentImporter>("Getting Source Guid [{0}] == [{1}]", () => guid, () => sourceGuid); 
 
             IContent c = _contentService.GetById(sourceGuid) ;
             if (c != null)
