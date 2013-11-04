@@ -287,7 +287,7 @@ namespace jumoo.usync.content.helpers
                     // is diffrent than the existing one..
                     if (!FilesAreEqual(currentFile, new FileInfo(file)))
                     {
-                        LogHelper.Info<FileHelper>("Updating umbracoFile with {0} ", () => file); 
+                        LogHelper.Info<FileHelper>("Updating umbracoFile with {0} ", () => file);
                         string filename = Path.GetFileName(file);
 
                         FileStream s = new FileStream(file, FileMode.Open);
@@ -301,6 +301,17 @@ namespace jumoo.usync.content.helpers
                             Directory.Delete(currentFile.DirectoryName, true);
                         }
                     }
+                }
+                else
+                {
+                    // if we have no currentfile, that's because it's not been imported first time yet.
+                    LogHelper.Info<FileHelper>("First time import of {0}", () => file);
+
+                    FileStream s = new FileStream(file, FileMode.Open);
+                    item.SetValue("umbracoFile", Path.GetFileName(file), s);
+                    s.Close();
+
+
                 }
             }
         }
