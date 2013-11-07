@@ -19,7 +19,26 @@ namespace jumoo.usync.content
         private static bool _synced = false;
         private static object _oSync = new object();
 
+        protected override void ApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        {
+            jumps.umbraco.usync.uSync.Initialized += uSync_Initialized;
+        }
+
+        /// <summary>
+        /// fired when uSync has finished...
+        /// </summary>
+        /// <param name="e"></param>
+        void uSync_Initialized(jumps.umbraco.usync.uSyncEventArgs e)
+        {
+            DoStartup();
+        }
+        
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        {
+            // DoStartup(); 
+        }
+
+        private void DoStartup() 
         {
             if (!_synced)
             {

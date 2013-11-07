@@ -42,6 +42,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Refrences\interfaces.dll</HintPath>
     </Reference>
+    <Reference Include="jumps.umbraco.usync">
+      <HintPath>..\..\..\..\..\..\..\Dropbox\uSync\Releases\latest\uSync_Umbraco4\7ddf1350-8c1a-4181-b902-576decb637e0\jumps.umbraco.usync.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
