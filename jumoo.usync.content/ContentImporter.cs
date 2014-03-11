@@ -24,7 +24,6 @@ namespace jumoo.usync.content
     /// </summary>
     public class ContentImporter
     {
-        PackagingService _packager;
         IContentService _contentService;
         IMediaService _mediaService ; 
 
@@ -34,7 +33,6 @@ namespace jumoo.usync.content
 
         public ContentImporter()
         {
-            _packager = ApplicationContext.Current.Services.PackagingService;
             _contentService = ApplicationContext.Current.Services.ContentService;
             _mediaService = ApplicationContext.Current.Services.MediaService    ; 
 

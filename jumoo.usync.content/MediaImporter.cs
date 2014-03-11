@@ -22,13 +22,11 @@ namespace jumoo.usync.content
 {
     public class MediaImporter
     {
-        PackagingService _packager;
         IMediaService _mediaService;
         int _count; 
 
         public MediaImporter()
         {
-            _packager = ApplicationContext.Current.Services.PackagingService;
             _mediaService = ApplicationContext.Current.Services.MediaService;
 
             ImportPairs.LoadFromDisk();        
