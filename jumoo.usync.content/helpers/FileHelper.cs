@@ -196,16 +196,21 @@ namespace jumoo.usync.content.helpers
             //
             // a valid scrubber - keeps some consistanct with umbraco core
             //
-            StringBuilder sb = new StringBuilder(); 
+            StringBuilder sb = new StringBuilder();
 
-            for(int i = 0; i < name.Length; i++ )
+            string newName = name.ToSafeAliasWithForcingCheck();
+            if (!string.IsNullOrEmpty(newName))
+                return newName;
+            
+            for (int i = 0; i < name.Length; i++)
             {
-                if ( validString.Contains(name[i].ToString()) )
+                if (validString.Contains(name[i].ToString()))
                 {
                     sb.Append(name[i]);
                 }
             }
-            return sb.ToString(); 
+            return sb.ToString();
+            
         }
 
 
