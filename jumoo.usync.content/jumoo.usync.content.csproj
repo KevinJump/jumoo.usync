@@ -31,16 +31,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="businesslogic">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\businesslogic.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\businesslogic.dll</HintPath>
     </Reference>
     <Reference Include="cms">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\cms.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\cms.dll</HintPath>
     </Reference>
     <Reference Include="interfaces">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\interfaces.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\interfaces.dll</HintPath>
     </Reference>
     <Reference Include="jumps.umbraco.usync">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\jumps.umbraco.usync.dll</HintPath>
+      <HintPath>..\Refrences\jumps.umbraco.usync.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -52,13 +52,16 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="umbraco">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\umbraco.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\umbraco.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.Core">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\Umbraco.Core.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\Umbraco.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="umbraco.DataLayer">
+      <HintPath>..\Refrences\Umb7.1.1\umbraco.DataLayer.dll</HintPath>
     </Reference>
     <Reference Include="umbraco.providers">
-      <HintPath>..\..\..\Web\Umbraco\DevUmbraco7.0.4\bin\umbraco.providers.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\umbraco.providers.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -83,8 +86,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>@XCOPY "$(TargetPath)" "D:\Development\Web\Umbraco\DevUmbraco7.0.4\bin\" /y /i /q
-@XCOPY "$(ProjectDir)uSyncContent.config" "D:\Development\Web\Umbraco\DevUmbraco7.0.4\Config\" /y /i /q
+    <PostBuildEvent>@XCOPY "$(TargetPath)" "D:\Development\Web\Umbraco\DevUmbraco7.1.1\bin\" /y /i /q
+@XCOPY "$(ProjectDir)uSyncContent.config" "D:\Development\Web\Umbraco\DevUmbraco7.1.1\Config\" /y /i /q
 
 @XCOPY "$(TargetPath)" "$(SolutionDir)Package\Latest\uSyncContent\" /y /i /q
 @XCOPY "$(ProjectDir)uSyncContent.config" "$(SolutionDir)\Package\Latest\uSyncContent\" /y /i /q
