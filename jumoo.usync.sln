@@ -1,11 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Web
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jumoo.usync.content", "jumoo.usync.content\jumoo.usync.content.csproj", "{A9DD6A5D-8932-493D-9575-5CC8D1736D61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jumoo.usync.usyncui", "jumoo.usync.usyncui\jumoo.usync.usyncui.csproj", "{8D3EFA9E-2FF4-4F8D-9AF0-518859B90538}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jumoo.usync.core", "jumoo.usync.core\jumoo.usync.core.csproj", "{27C2C64E-E054-4DE8-A903-7C0C2CE34C70}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9683463D-D9DC-498C-8D41-BAA6784A4934}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

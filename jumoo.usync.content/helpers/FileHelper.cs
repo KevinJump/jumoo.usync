@@ -8,7 +8,9 @@ using Umbraco.Core.Logging;
 
 using System.Xml.Linq;
 using System;
-using System.Text; 
+using System.Text;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json; 
 
 namespace jumoo.usync.content.helpers
 {
@@ -213,15 +215,27 @@ namespace jumoo.usync.content.helpers
             
         }
 
+        internal static bool IsJson (string input)
+        {
+            input = input.Trim();
+            return (input.StartsWith("{") && input.EndsWith("}"))
+                   || (input.StartsWith("[") && input.EndsWith("]"));
+        }
 
-        public static void ExportMediaFile(string path, Guid key) 
+        public static void ExportMediaFile(string mediaInfo, Guid key) 
         {
             string fileroot = IOHelper.MapPath(_mappedFilesRoot) ; 
+            string path = string.Empty;
+
+            // U7's image cropper saves the umbracoFile property value in JSON
+            if (IsJson(mediaInfo))
+                path = JsonConvert.DeserializeObject<dynamic>(mediaInfo).src;
+            else
+                path = mediaInfo;
 
             string folder =  Path.Combine(fileroot, key.ToString() ) ; 
             string dest = Path.Combine( folder, Path.GetFileName(path) ) ; 
             string source = IOHelper.MapPath( string.Format("~{0}", path)) ;
-
 
             LogHelper.Info<FileHelper>("Attempting Export {0} to {1}", () => source, () => dest); 
 
@@ -235,7 +249,6 @@ namespace jumoo.usync.content.helpers
 
                 System.IO.File.Copy(source,dest) ; 
             }
-
         }
 
         public static void ImportMediaFile(Guid guid, IMedia item)
@@ -261,13 +274,20 @@ namespace jumoo.usync.content.helpers
                 {
                     string umbracoFile = item.GetValue("umbracoFile").ToString();
 
+                    // standard upload datatype saves the media path as a string. e.g. /media/xxxx/xxxx.jpg
+                    // U7's image cropper datatype saves the media as JSON
+                    string path =
+                        (!string.IsNullOrWhiteSpace(umbracoFile) && IsJson(umbracoFile))
+                        ? JsonConvert.DeserializeObject<dynamic>(umbracoFile).src
+                        : umbracoFile;
+
                     //
                     // we check it's in the media folder, because later we delete it and all it's sub folders
                     // if for some reason it was blank or mallformed we could trash the whole umbraco just here.
                     //
-                    if (umbracoFile.StartsWith("/media/")) 
+                    if (path.StartsWith("/media/")) 
                     {
-                        string f = IOHelper.MapPath(string.Format("~{0}", item.GetValue("umbracoFile").ToString()));
+                        string f = IOHelper.MapPath(string.Format("~{0}", path));
                         if (System.IO.File.Exists(f))
                         {
                             LogHelper.Debug<FileHelper>("Getting info for {0}", () => f); 

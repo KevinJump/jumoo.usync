@@ -45,7 +45,17 @@ namespace jumoo.usync.content.helpers
 
             foreach (var property in item.Properties.Where(p => p != null))
             {
-                XElement propXml = property.ToXml();
+                XElement propXml = null;
+
+                try
+                {
+                    propXml = property.ToXml();
+                }
+                // a dirty way of handling properties that can't be serialised.
+                catch
+                {
+                    propXml = new XElement(property.Alias, string.Empty);
+                }
 
                 string xmlVal = "";
                 if (mapProps)
