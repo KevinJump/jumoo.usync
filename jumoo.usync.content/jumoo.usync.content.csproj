@@ -97,11 +97,16 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>@XCOPY "$(TargetPath)" "D:\Development\Web\Umbraco\DevUmbraco7.1.1\bin\" /y /i /q
-@XCOPY "$(ProjectDir)uSyncContent.config" "D:\Development\Web\Umbraco\DevUmbraco7.1.1\Config\" /y /i /q
-
+    <PostBuildEvent>
+ECHO - Updating package folder
 @XCOPY "$(TargetPath)" "$(SolutionDir)Package\Latest\uSyncContent\" /y /i /q
 @XCOPY "$(ProjectDir)uSyncContent.config" "$(SolutionDir)\Package\Latest\uSyncContent\" /y /i /q
+
+@Echo - Copying to a Site for testing (Alter ToUmbracoInstall.cmd)
+Call $(SolutionDir)\ToUmbracoInstall.cmd "$(TargetPath)" bin
+Call $(SolutionDir)\ToUmbracoInstall.cmd "$(ProjectDir)uSyncContent.config" config
+
+
 
 
 

@@ -73,7 +73,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM @XCOPY "$(TargetPath)" "E:\Files\Dev\Umbraco\versions\6.1.3\bin\" /y /i /q</PostBuildEvent>
+    <PostBuildEvent>REM - Not used....
+REM ECHO - Copying to a Site for testing (Alter ToUmbracoInstall.cmd)
+REM Call $(SolutionDir)\ToUmbracoInstall.cmd "$(TargetPath)" bin
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
