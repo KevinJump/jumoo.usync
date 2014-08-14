@@ -30,17 +30,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="businesslogic, Version=1.0.4954.19343, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refrences\businesslogic.dll</HintPath>
+    <Reference Include="businesslogic">
+      <HintPath>..\Refrences\Umb7.1.1\businesslogic.dll</HintPath>
     </Reference>
-    <Reference Include="cms, Version=1.0.4954.19343, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refrences\cms.dll</HintPath>
+    <Reference Include="cms">
+      <HintPath>..\Refrences\Umb7.1.1\cms.dll</HintPath>
     </Reference>
-    <Reference Include="interfaces, Version=1.0.4954.19342, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="interfaces">
+      <HintPath>..\Refrences\Umb7.1.1\interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refrences\interfaces.dll</HintPath>
+      <HintPath>..\Refrences\Umb7.1.1\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,17 +51,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="umbraco, Version=1.0.4954.19345, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refrences\umbraco.dll</HintPath>
+    <Reference Include="umbraco">
+      <HintPath>..\Refrences\Umb7.1.1\umbraco.dll</HintPath>
     </Reference>
-    <Reference Include="Umbraco.Core, Version=1.0.4954.19342, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refrences\Umbraco.Core.dll</HintPath>
+    <Reference Include="Umbraco.Core">
+      <HintPath>..\Refrences\Umb7.1.1\Umbraco.Core.dll</HintPath>
     </Reference>
-    <Reference Include="umbraco.providers, Version=1.0.4954.19344, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refrences\umbraco.providers.dll</HintPath>
+    <Reference Include="umbraco.DataLayer">
+      <HintPath>..\Refrences\Umb7.1.1\umbraco.DataLayer.dll</HintPath>
+    </Reference>
+    <Reference Include="umbraco.providers">
+      <HintPath>..\Refrences\Umb7.1.1\umbraco.providers.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -111,8 +111,16 @@ namespace jumoo.usync.content
             //
             foreach (var file in item.Properties.Where(p => p.Alias == "umbracoFile"))
             {
-                LogHelper.Info<MediaExporter>("umbraco file {0}", () => file.Value.ToString());
-                FileHelper.ExportMediaFile(file.Value.ToString(), ImportPairs.GetSourceGuid(item.Key));
+                if (file == null || file.Value == null)
+                {
+                    LogHelper.Debug<MediaExporter>("Media {0} doesn't have an associated file", () => item.Name);
+                }
+                else
+                {
+                    LogHelper.Info<MediaExporter>("umbraco file {0}", () => file.Value.ToString());
+                    FileHelper.ExportMediaFile(file.Value.ToString(), ImportPairs.GetSourceGuid(item.Key));
+                }
+
             }
 
 
