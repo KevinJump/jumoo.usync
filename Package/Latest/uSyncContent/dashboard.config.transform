@@ -1,0 +1,10 @@
+<dashBoard>
+    <section alias="StartupDeveloperDashboardSection">
+        <areas>
+          <area>developer</area>
+        </areas>
+        <tab caption="uSync Content Edition">
+          <control>/usercontrols/usync/uSyncTab.ascx</control>
+        </tab>
+    </section>
+</dashBoard>
