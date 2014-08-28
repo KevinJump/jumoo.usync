@@ -3,7 +3,7 @@
     <div class="propertyItem">
         <div class="dashboardWrapper">
             <h2>uSync (Content Edition)</h2>
-            <img src="./dashboard/images/starterkit32x32.png" alt="uSync" class="dashboardIcon">
+            <img src="/umbraco/images/package.png" alt="uSync" class="dashboardIcon">
             <p>
                 uSync.ContentEdition syncs content & media to and from disk. the default configuration is to 
                 do this when the site starts and at everysave. so you shouldn't need the buttons below.

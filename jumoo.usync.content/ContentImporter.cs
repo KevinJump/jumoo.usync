@@ -164,9 +164,11 @@ namespace jumoo.usync.content
                         updateDate = DateTime.Parse(element.Attribute("updated").Value);
                     }
 
-                    if ( DateTime.Compare(updateDate, content.UpdateDate) <= 0 )
+                    // LogHelper.Info<ContentImporter>("File Date {0} Content Date {1}", () => updateDate, () => content.UpdateDate.ToLocalTime());
+
+                    if ( DateTime.Compare(updateDate, content.UpdateDate.ToLocalTime()) <= 0 )
                     {
-                        LogHelper.Info<ContentImporter>("{0} no change", ()=> name);
+                        LogHelper.Debug<ContentImporter>("{0} no change", ()=> name);
                         return content;
                     }
                     LogHelper.Debug<ContentImporter>("Updating existing node {0}", ()=> name);

@@ -25,7 +25,7 @@
   <info>
     <package>
       <name>uSync.ContentEdition</name>
-      <version>0.7.1</version>
+      <version>0.7.2</version>
       <license url="http://www.opensource.org/licenses/mit-license.php">MIT license</license>
       <url>http://jumoo.co.uk/usync</url>
       <requirements>
@@ -38,7 +38,7 @@
       <name>Kevin Jump</name>
       <website>http://kevin.thejumps.co.uk</website>
     </author>
-    <readme><![CDATA[uSync.Content Edition 0.7.1 for Umbraco 6/7
+    <readme><![CDATA[uSync.Content Edition 0.7.2 for Umbraco 6/7
 ==========================================
 Experimental content importer and exporter – to help you move content from one Umbraco installation to another.
 
