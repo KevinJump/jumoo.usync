@@ -333,7 +333,7 @@ namespace jumoo.usync.content.helpers
                         string filename = Path.GetFileName(file);
 
                         FileStream s = new FileStream(file, FileMode.Open);
-                        item.SetValue("umbracoFile", filename, s);
+                        item.SetValue("umbracoFile", filename, s); // question this for imagecropper types... 
                         s.Close();
 
                         // ok so now we've gone and created a new folder, we need to delete the old on
