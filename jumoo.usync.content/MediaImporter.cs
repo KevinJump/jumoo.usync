@@ -124,7 +124,7 @@ namespace jumoo.usync.content
                     // data logic to speed stuff up
 
                     // this doesn't seem to work, because media.UpdateDate doesn't return proper?
-                    if (DateTime.Compare(updateDate, media.UpdateDate) <= 0)
+                    if (DateTime.Compare(updateDate, media.UpdateDate.ToLocalTime()) <= 0)
                     {
                         LogHelper.Info<MediaImporter>("No update since last change {0}", () => name);
                         return media;
@@ -136,7 +136,8 @@ namespace jumoo.usync.content
             if (media != null)
             {
                 _count++;
-                media.Name = name;
+                if (media.Name != name) 
+                    media.Name = name;
 
                 if (media.ParentId != parentId)
                     media.ParentId = parentId;
@@ -161,8 +162,8 @@ namespace jumoo.usync.content
                 }
                 */
 
-                FileHelper.ImportMediaFile(mediaGuid, media);
-               
+                FileHelper.ImportMediaFile(mediaGuid, media);               
+                
                 _mediaService.Save(media); 
 
             }
