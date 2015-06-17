@@ -98,19 +98,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-ECHO - Updating package folder
-@XCOPY "$(TargetPath)" "$(SolutionDir)Package\Latest\uSyncContent\" /y /i /q
-@XCOPY "$(ProjectDir)uSyncContent.config" "$(SolutionDir)\Package\Latest\uSyncContent\" /y /i /q
-
-@Echo - Copying to a Site for testing (Alter ToUmbracoInstall.cmd)
-Call $(SolutionDir)\ToUmbracoInstall.cmd "$(TargetPath)" bin
-Call $(SolutionDir)\ToUmbracoInstall.cmd "$(ProjectDir)uSyncContent.config" config
-
-
-
-
-
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

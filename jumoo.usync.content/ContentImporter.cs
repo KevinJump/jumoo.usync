@@ -27,7 +27,8 @@ namespace jumoo.usync.content
         IContentService _contentService;
         IMediaService _mediaService ; 
 
-        static Dictionary<Guid, XElement> changes; 
+        static Dictionary<Guid, XElement> changes;
+        static string[] EnumerableDataTypes = new[] { "Umbraco.DropDown", "Umbraco.CheckBoxList" };           // These are a list of datatypes where we need to send the values as arrays
         
         int importCount = 0; // used just to say how many things we imported
 
@@ -204,7 +205,18 @@ namespace jumoo.usync.content
                     {
                         // right if we are trying to be clever and map ids 
                         // then mapIds will be set
-                        content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                        string value =  UpdateMatchingIds(GetInnerXML(property));
+
+                        if (ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias)) {
+                            var dataTypeValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).DataTypeDefinitionId);
+                            var values = value.Split(',');
+                            var preValueIds = dataTypeValues.PreValuesAsDictionary.Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id).ToArray();
+                            var typeValues = preValueIds.Select(x => x.ToString()).Aggregate((x,y) => x + "," + y);
+
+                            content.SetValue(propertyTypeAlias, (preValueIds.Length == 1 ? (object)preValueIds.First() : (object)typeValues));
+                        } else {
+                            content.SetValue(propertyTypeAlias, value);
+                        }
                     }
                 }
                    
