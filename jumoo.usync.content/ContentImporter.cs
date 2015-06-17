@@ -207,7 +207,7 @@ namespace jumoo.usync.content
                         // then mapIds will be set
                         string value =  UpdateMatchingIds(GetInnerXML(property));
 
-                        if (ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias)) {
+                        if (!string.IsNullOrEmpty(value) && ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias)) {
                             var dataTypeValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).DataTypeDefinitionId);
                             var values = value.Split(',');
                             var preValueIds = dataTypeValues.PreValuesAsDictionary.Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id).ToArray();
