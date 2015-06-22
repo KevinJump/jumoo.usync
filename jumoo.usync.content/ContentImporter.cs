@@ -210,10 +210,14 @@ namespace jumoo.usync.content
                         if (!string.IsNullOrEmpty(value) && ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias)) {
                             var dataTypeValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).DataTypeDefinitionId);
                             var values = value.Split(',');
-                            var preValueIds = dataTypeValues.PreValuesAsDictionary.Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id).ToArray();
-                            var typeValues = preValueIds.Select(x => x.ToString()).Aggregate((x,y) => x + "," + y);
+                            var typeValues = dataTypeValues
+                                .PreValuesAsDictionary
+                                .Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id)
+                                .ToArray()
+                                .Select(x => x.ToString())
+                                .Aggregate((x,y) => x + "," + y);
 
-                            content.SetValue(propertyTypeAlias, (preValueIds.Length == 1 ? (object)preValueIds.First() : (object)typeValues));
+                            content.SetValue(propertyTypeAlias, typeValues);
                         } else {
                             content.SetValue(propertyTypeAlias, value);
                         }
@@ -296,19 +300,37 @@ namespace jumoo.usync.content
                         // LogHelper.Info(typeof(ContentImporter), String.Format("Property: {0}", property.Name)); 
 
                         string propertyTypeAlias = property.Name.LocalName;
+                        string value = UpdateMatchingIds(GetInnerXML(property));
+
                         if (content.HasProperty(propertyTypeAlias))
                         {
-                            content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                            if (!string.IsNullOrEmpty(value) && ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias))
+                            {
+                                var dataTypeValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).DataTypeDefinitionId);
+                                var values = value.Split(',');
+                                var typeValues = dataTypeValues
+                                    .PreValuesAsDictionary
+                                    .Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id)
+                                    .ToArray()
+                                    .Select(x => x.ToString())
+                                    .Aggregate((x, y) => x + "," + y);
+
+                                content.SetValue(propertyTypeAlias, typeValues);
+                            }
+                            else
+                            {
+                                content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                            }
                         }
                     }
 
                     if (content.Published)
                     {
-                        _contentService.SaveAndPublish(content, 0, true);
+                        _contentService.SaveAndPublish(content, 0, false);
                     }
                     else
                     {
-                        _contentService.Save(content, 0, true);
+                        _contentService.Save(content, 0, false);
                     }
 
                 }
