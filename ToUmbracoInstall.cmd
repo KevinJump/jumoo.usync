@@ -11,8 +11,9 @@ REM Update umbraco path to a site you have locally
 REM and don't commit this file back.
 REM
 
-
+GOTO BREAK
 SET UmbracoPath=D:\Development\Web\Umbraco\DevUmbraco7.1.5
 ECHO Copying File %1 to "%UmbracoPath%\%2"
 XCOPY %1 "%UmbracoPath%\%2" /y /i /q
 
+:BREAK

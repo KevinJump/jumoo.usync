@@ -214,10 +214,20 @@ namespace jumoo.usync.content
                                 .PreValuesAsDictionary
                                 .Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id)
                                 .ToArray()
-                                .Select(x => x.ToString())
-                                .Aggregate((x,y) => x + "," + y);
+                                .Select(x => x.ToString());
 
-                            content.SetValue(propertyTypeAlias, typeValues);
+                            if (typeValues.Count() == 0)
+                            {
+                                LogHelper.Warn<ContentImporter>("Unable to import property `{0}` in item `{1}`. Unable to find datatype value(s) `{2}` in datatype `{3}`",
+                                    () => propertyTypeAlias,
+                                    () => _guid.ToString(),
+                                    () => value,
+                                    () => content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).Name);
+                            }
+                            else
+                            {
+                                content.SetValue(propertyTypeAlias, typeValues.Aggregate((x, y) => x + "," + y));
+                            }
                         } else {
                             content.SetValue(propertyTypeAlias, value);
                         }
@@ -312,10 +322,21 @@ namespace jumoo.usync.content
                                     .PreValuesAsDictionary
                                     .Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id)
                                     .ToArray()
-                                    .Select(x => x.ToString())
-                                    .Aggregate((x, y) => x + "," + y);
+                                    .Select(x => x.ToString());
 
-                                content.SetValue(propertyTypeAlias, typeValues);
+
+                                if (typeValues.Count() == 0)
+                                {
+                                    LogHelper.Warn<ContentImporter>("Unable to import property `{0}` in item `{1}`. Unable to find datatype value(s) `{2}` in datatype `{3}`",
+                                        () => propertyTypeAlias,
+                                        () => change.Key,
+                                        () => value,
+                                        () => content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).Name);
+                                }
+                                else
+                                {
+                                    content.SetValue(propertyTypeAlias, typeValues.Aggregate((x, y) => x + "," + y));
+                                }
                             }
                             else
                             {
