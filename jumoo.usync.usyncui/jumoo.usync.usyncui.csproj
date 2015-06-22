@@ -110,7 +110,16 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup>
-    <PostBuildEvent>
+    <PostBuildEvent>Echo Updating Package Folder...
+@XCOPY "$(TargetPath)" "$(SolutionDir)Package\Latest\uSyncContent\" /y /i /q
+@XCOPY "$(ProjectDir)uSyncTab.ascx" "$(SolutionDir)\Package\Latest\uSyncContent\" /y /i /q
+
+@Echo - Copying to a Site for testing (Alter ToUmbracoInstall.cmd)
+Call $(SolutionDir)\ToUmbracoInstall.cmd "$(TargetPath)" bin
+Call $(SolutionDir)\ToUmbracoInstall.cmd "$(ProjectDir)uSyncTab.ascx" UserControls\uSync\
+
+
+
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
