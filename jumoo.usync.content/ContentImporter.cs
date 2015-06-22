@@ -27,7 +27,8 @@ namespace jumoo.usync.content
         IContentService _contentService;
         IMediaService _mediaService ; 
 
-        static Dictionary<Guid, XElement> changes; 
+        static Dictionary<Guid, XElement> changes;
+        static string[] EnumerableDataTypes = new[] { "Umbraco.DropDown", "Umbraco.CheckBoxList" };           // These are a list of datatypes where we need to send the values as arrays
         
         int importCount = 0; // used just to say how many things we imported
 
@@ -204,7 +205,32 @@ namespace jumoo.usync.content
                     {
                         // right if we are trying to be clever and map ids 
                         // then mapIds will be set
-                        content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                        string value =  UpdateMatchingIds(GetInnerXML(property));
+
+                        if (!string.IsNullOrEmpty(value) && ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias)) {
+                            var dataTypeValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).DataTypeDefinitionId);
+                            var values = value.Split(',');
+                            var typeValues = dataTypeValues
+                                .PreValuesAsDictionary
+                                .Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id)
+                                .ToArray()
+                                .Select(x => x.ToString());
+
+                            if (typeValues.Count() == 0)
+                            {
+                                LogHelper.Warn<ContentImporter>("Unable to import property `{0}` in item `{1}`. Unable to find datatype value(s) `{2}` in datatype `{3}`",
+                                    () => propertyTypeAlias,
+                                    () => _guid.ToString(),
+                                    () => value,
+                                    () => content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).Name);
+                            }
+                            else
+                            {
+                                content.SetValue(propertyTypeAlias, typeValues.Aggregate((x, y) => x + "," + y));
+                            }
+                        } else {
+                            content.SetValue(propertyTypeAlias, value);
+                        }
                     }
                 }
                    
@@ -284,19 +310,48 @@ namespace jumoo.usync.content
                         // LogHelper.Info(typeof(ContentImporter), String.Format("Property: {0}", property.Name)); 
 
                         string propertyTypeAlias = property.Name.LocalName;
+                        string value = UpdateMatchingIds(GetInnerXML(property));
+
                         if (content.HasProperty(propertyTypeAlias))
                         {
-                            content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                            if (!string.IsNullOrEmpty(value) && ContentImporter.EnumerableDataTypes.Contains(content.ContentType.PropertyTypes.First(x => x.Alias == propertyTypeAlias).PropertyEditorAlias))
+                            {
+                                var dataTypeValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).DataTypeDefinitionId);
+                                var values = value.Split(',');
+                                var typeValues = dataTypeValues
+                                    .PreValuesAsDictionary
+                                    .Where(x => value.Contains(x.Value.Value)).Select(x => x.Value.Id)
+                                    .ToArray()
+                                    .Select(x => x.ToString());
+
+
+                                if (typeValues.Count() == 0)
+                                {
+                                    LogHelper.Warn<ContentImporter>("Unable to import property `{0}` in item `{1}`. Unable to find datatype value(s) `{2}` in datatype `{3}`",
+                                        () => propertyTypeAlias,
+                                        () => change.Key,
+                                        () => value,
+                                        () => content.PropertyTypes.First(x => x.Alias == propertyTypeAlias).Name);
+                                }
+                                else
+                                {
+                                    content.SetValue(propertyTypeAlias, typeValues.Aggregate((x, y) => x + "," + y));
+                                }
+                            }
+                            else
+                            {
+                                content.SetValue(propertyTypeAlias, UpdateMatchingIds(GetInnerXML(property)));
+                            }
                         }
                     }
 
                     if (content.Published)
                     {
-                        _contentService.SaveAndPublish(content, 0, true);
+                        _contentService.SaveAndPublish(content, 0, false);
                     }
                     else
                     {
-                        _contentService.Save(content, 0, true);
+                        _contentService.Save(content, 0, false);
                     }
 
                 }
