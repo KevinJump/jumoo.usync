@@ -1,3 +1,9 @@
+This Repository is for the old version of uSync.ContentEdtion - and has been archived.
+
+This version of uSync is no longer actively supported 
+
+please see the new version : https://github.com/KevinJump/uSync for more info.
+
 jumoo.usync
 ===========
 
